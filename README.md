@@ -123,6 +123,20 @@ model = "my_part"
 formats = ["stl", "step", "png"]
 ```
 
+One source file may expose multiple buildable models with `MODELS = (...)`.
+Use artifact `overrides` to generate variants from one boolean or dimension
+parameter instead of copying CAD source:
+
+```toml
+[[artifact]]
+slug = "printable-part-no-logo"
+model = "my_part"
+formats = ["stl", "step", "png"]
+
+[artifact.overrides]
+include_logo = false
+```
+
 Run `mise run package -- my-project` to refresh the committed artifacts.
 Run `mise run render -- my-project` to refresh only the final render from
 existing artifact PNGs.

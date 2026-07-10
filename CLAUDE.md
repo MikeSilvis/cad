@@ -49,7 +49,8 @@ Each design should:
 
 - Define a frozen dataclass named `<PartName>Spec`.
 - Define a `build(spec)` function that returns a build123d part.
-- Define `MODEL = CadModel(...)` with a stable snake_case name.
+- Define `MODEL = CadModel(...)` with a stable snake_case name, or `MODELS = (...)`
+  when one source file exposes multiple related outputs.
 - Keep dimensions as spec fields instead of hard-coded values.
 - Be discoverable by `.venv/bin/cad list`.
 
@@ -99,6 +100,9 @@ slug = "printable-part"
 model = "my_part"
 formats = ["stl", "step", "png"]
 ```
+
+Use artifact overrides to generate variants from the same model, such as
+`include_text=false`, instead of copying or forking source files.
 
 Run `mise run package -- <project-id>` after changing a printable project. This
 refreshes committed STL/STEP/PNG files, cost estimates, and the standard final

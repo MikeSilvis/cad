@@ -23,6 +23,8 @@ projects/<project-id>/
 - Keep generic reusable models in root `designs/`; keep user-facing
   project-specific models in `projects/<project-id>/designs/`.
 - Use snake_case model names and design filenames.
+- Use one source file with `MODELS = (...)` for related outputs, and artifact
+  overrides for boolean/dimensional variants instead of duplicating CAD source.
 - Use kebab-case for `projects/<project-id>` and artifact slugs.
 - Treat `exports/` as scratch output; committed generated CAD files belong only
   under `projects/<project-id>/artifacts/`.

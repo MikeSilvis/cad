@@ -385,3 +385,12 @@ MODEL = CadModel(
     spec_type=TabA9GolfCaseSpec,
     build=build,
 )
+
+TEXT_MODEL = CadModel(
+    name="tab_a9_golf_case_text",
+    description="Flush colored text inlays for the Galaxy Tab A9 golf-cart case.",
+    spec_type=TabA9GolfCaseSpec,
+    build=build_text_inlay,
+)
+
+MODELS = (MODEL, TEXT_MODEL)

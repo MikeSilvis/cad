@@ -9,7 +9,8 @@ speaker area.
 ## Artifacts
 
 - `designs/` contains the project-local parametric source models.
-- `artifacts/case/` contains the main printable case body.
+- `artifacts/case/` contains the main printable case body with rear text pockets.
+- `artifacts/case-no-text/` contains the same case generated with `include_text=false`.
 - `artifacts/text-inlay/` contains the separate flush rear lettering for a second filament color.
 - `renders/tab-a9-golf-case_final.png` is the standard final project render.
 

@@ -25,6 +25,10 @@ def test_discovers_project_local_models():
     assert models["tab_a9_golf_case_text"].build.__module__.startswith(
         "cad_project_tab_a9_golf_case"
     )
+    assert (
+        models["tab_a9_golf_case"].build.__module__
+        == models["tab_a9_golf_case_text"].build.__module__
+    )
 
 
 def test_models_build_solid_parts():
@@ -88,11 +92,17 @@ def test_discovers_configured_projects():
     project = projects["tab-a9-golf-case"]
 
     assert project.title == "Samsung Galaxy Tab A9 Golf Case"
-    assert [artifact.slug for artifact in project.artifacts] == ["case", "text-inlay"]
+    assert [artifact.slug for artifact in project.artifacts] == [
+        "case",
+        "case-no-text",
+        "text-inlay",
+    ]
     assert [artifact.model for artifact in project.artifacts] == [
+        "tab_a9_golf_case",
         "tab_a9_golf_case",
         "tab_a9_golf_case_text",
     ]
+    assert project.artifacts[1].overrides == {"include_text": "False"}
 
 
 def test_export_model_can_use_project_artifact_names(tmp_path):

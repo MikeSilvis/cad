@@ -8,6 +8,14 @@ model = "tab_a9_golf_case"
 formats = ["stl", "step", "png"]
 
 [[artifact]]
+slug = "case-no-text"
+model = "tab_a9_golf_case"
+formats = ["stl", "step", "png"]
+
+[artifact.overrides]
+include_text = false
+
+[[artifact]]
 slug = "text-inlay"
 model = "tab_a9_golf_case_text"
 formats = ["stl", "step", "png"]

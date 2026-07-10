@@ -22,14 +22,7 @@ def discover_models() -> dict[str, CadModel]:
             continue
 
         module = importlib.import_module(f"designs.{module_info.name}")
-        model = getattr(module, "MODEL", None)
-        if model is None:
-            continue
-        if not isinstance(model, CadModel):
-            raise TypeError(f"designs.{module_info.name}.MODEL must be a CadModel")
-        if model.name in models:
-            raise ValueError(f"Duplicate CAD model name: {model.name}")
-        models[model.name] = model
+        register_module_models(models, module, f"designs.{module_info.name}")
 
     for project_design in sorted(PROJECTS_ROOT.glob("*/designs/*.py")):
         if project_design.name.startswith("_"):
@@ -37,16 +30,30 @@ def discover_models() -> dict[str, CadModel]:
 
         module_name = module_name_for_project_design(project_design)
         module = import_module_from_path(module_name, project_design)
-        model = getattr(module, "MODEL", None)
-        if model is None:
-            continue
-        if not isinstance(model, CadModel):
-            raise TypeError(f"{project_design}.MODEL must be a CadModel")
+        register_module_models(models, module, str(project_design))
+
+    return dict(sorted(models.items()))
+
+
+def register_module_models(models: dict[str, CadModel], module, source_name: str) -> None:
+    for model in models_from_module(module, source_name):
         if model.name in models:
             raise ValueError(f"Duplicate CAD model name: {model.name}")
         models[model.name] = model
 
-    return dict(sorted(models.items()))
+
+def models_from_module(module, source_name: str) -> tuple[CadModel, ...]:
+    if hasattr(module, "MODELS"):
+        module_models = tuple(getattr(module, "MODELS"))
+    else:
+        model = getattr(module, "MODEL", None)
+        module_models = () if model is None else (model,)
+
+    for model in module_models:
+        if not isinstance(model, CadModel):
+            raise TypeError(f"{source_name} must expose CadModel instances")
+
+    return module_models
 
 
 def import_module_from_path(module_name: str, path: Path):
