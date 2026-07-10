@@ -39,6 +39,9 @@ def test_tab_a9_golf_case_defaults_match_magnet_layout():
     assert spec.top_text == "Silly"
     assert spec.bottom_text == "(814) 574-6139"
     assert spec.bottom_text_font == "Avenir Next"
+    assert spec.top_mic_cutout_width > 0
+    assert spec.side_button_cutout_length > spec.snap_latch_width
+    assert spec.side_button_cutout_center_from_top > spec.side_button_cutout_length / 2
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width
 

@@ -36,6 +36,13 @@ class TabA9GolfCaseSpec:
     snap_latch_thickness: float = 1.2
     snap_latch_depth: float = 1.6
     snap_latch_inset_from_side: float = 18.0
+    top_mic_cutout_width: float = 14.0
+    top_mic_cutout_depth: float = 5.4
+    top_mic_cutout_height: float = 10.8
+    side_button_cutout_length: float = 58.0
+    side_button_cutout_depth: float = 5.6
+    side_button_cutout_height: float = 10.8
+    side_button_cutout_center_from_top: float = 55.0
     magnet_length: float = 60.0
     magnet_width: float = 10.0
     magnet_thickness: float = 3.0
@@ -96,6 +103,7 @@ def build(spec: TabA9GolfCaseSpec):
         )
 
         add_slide_in_retention(spec, inner_length, inner_width, corner_z, lip_z)
+        cut_device_controls(spec, inner_length, inner_width, back_top_z)
         cut_magnet_pockets(spec, pocket_length, pocket_width, pocket_cut_depth, pocket_z)
         if has_text(spec):
             cut_text_inlay_pockets(spec)
@@ -198,6 +206,41 @@ def add_slide_in_retention(
         )
 
 
+def cut_device_controls(
+    spec: TabA9GolfCaseSpec,
+    inner_length: float,
+    inner_width: float,
+    back_top_z: float,
+) -> None:
+    wall = spec.corner_wall_thickness
+    control_z = back_top_z + spec.side_button_cutout_height / 2
+
+    top_mic_x = -inner_length / 2 - wall / 2
+    add(
+        rounded_box_xy(
+            spec.top_mic_cutout_depth,
+            spec.top_mic_cutout_width,
+            spec.top_mic_cutout_height,
+            center=(top_mic_x, 0, control_z),
+            radius=spec.rail_end_radius,
+        ),
+        mode=Mode.SUBTRACT,
+    )
+
+    button_x = -inner_length / 2 + spec.side_button_cutout_center_from_top
+    button_y = inner_width / 2 + wall / 2
+    add(
+        rounded_box_xy(
+            spec.side_button_cutout_length,
+            spec.side_button_cutout_depth,
+            spec.side_button_cutout_height,
+            center=(button_x, button_y, control_z),
+            radius=spec.rail_end_radius,
+        ),
+        mode=Mode.SUBTRACT,
+    )
+
+
 def cut_magnet_pockets(
     spec: TabA9GolfCaseSpec,
     pocket_length: float,
@@ -298,6 +341,17 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("corner_wall_height must reach the top of the front lip")
     if spec.side_rail_open_gap <= spec.snap_latch_thickness:
         raise ValueError("side_rail_open_gap must leave room for the snap latches to flex")
+    if spec.top_mic_cutout_width <= 0 or spec.top_mic_cutout_depth <= 0:
+        raise ValueError("top mic cutout dimensions must be positive")
+    if spec.side_button_cutout_length <= 0 or spec.side_button_cutout_depth <= 0:
+        raise ValueError("side button cutout dimensions must be positive")
+    if spec.side_button_cutout_center_from_top <= spec.side_button_cutout_length / 2:
+        raise ValueError("side button cutout must stay inside the side rail")
+    if (
+        spec.side_button_cutout_center_from_top + spec.side_button_cutout_length / 2
+        >= spec.tablet_length - spec.side_rail_open_gap
+    ):
+        raise ValueError("side button cutout must not run into the open-end latch area")
     if spec.text_inlay_depth <= 0:
         raise ValueError("text_inlay_depth must be positive")
     if spec.text_inlay_depth + spec.text_pocket_overcut >= spec.back_thickness:
