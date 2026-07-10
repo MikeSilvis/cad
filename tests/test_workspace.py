@@ -42,6 +42,8 @@ def test_tab_a9_golf_case_defaults_match_magnet_layout():
     assert spec.top_mic_cutout_width > 0
     assert spec.side_button_cutout_length > spec.snap_latch_width
     assert spec.side_button_cutout_center_from_top > spec.side_button_cutout_length / 2
+    assert spec.bottom_speaker_cutout_width > spec.snap_latch_width
+    assert spec.bottom_speaker_cutout_center_from_right > spec.bottom_speaker_cutout_width / 2
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width
 

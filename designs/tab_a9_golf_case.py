@@ -43,6 +43,10 @@ class TabA9GolfCaseSpec:
     side_button_cutout_depth: float = 5.6
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 55.0
+    bottom_speaker_cutout_width: float = 36.0
+    bottom_speaker_cutout_depth: float = 7.0
+    bottom_speaker_cutout_height: float = 10.8
+    bottom_speaker_cutout_center_from_right: float = 28.0
     magnet_length: float = 60.0
     magnet_width: float = 10.0
     magnet_thickness: float = 3.0
@@ -240,6 +244,19 @@ def cut_device_controls(
         mode=Mode.SUBTRACT,
     )
 
+    speaker_x = inner_length / 2 + spec.snap_latch_thickness / 2
+    speaker_y = inner_width / 2 - spec.bottom_speaker_cutout_center_from_right
+    add(
+        rounded_box_xy(
+            spec.bottom_speaker_cutout_depth,
+            spec.bottom_speaker_cutout_width,
+            spec.bottom_speaker_cutout_height,
+            center=(speaker_x, speaker_y, control_z),
+            radius=spec.rail_end_radius,
+        ),
+        mode=Mode.SUBTRACT,
+    )
+
 
 def cut_magnet_pockets(
     spec: TabA9GolfCaseSpec,
@@ -345,6 +362,10 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("top mic cutout dimensions must be positive")
     if spec.side_button_cutout_length <= 0 or spec.side_button_cutout_depth <= 0:
         raise ValueError("side button cutout dimensions must be positive")
+    if spec.bottom_speaker_cutout_width <= 0 or spec.bottom_speaker_cutout_depth <= 0:
+        raise ValueError("bottom speaker cutout dimensions must be positive")
+    if spec.bottom_speaker_cutout_center_from_right <= spec.bottom_speaker_cutout_width / 2:
+        raise ValueError("bottom speaker cutout must stay inside the bottom edge")
     if spec.side_button_cutout_center_from_top <= spec.side_button_cutout_length / 2:
         raise ValueError("side button cutout must stay inside the side rail")
     if (
