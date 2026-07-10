@@ -36,13 +36,11 @@ class TabA9GolfCaseSpec:
     snap_latch_thickness: float = 1.6
     snap_latch_depth: float = 2.0
     snap_latch_inset_from_side: float = 18.0
-    top_mic_cutout_width: float = 14.0
-    top_mic_cutout_depth: float = 5.4
-    top_mic_cutout_height: float = 10.8
     side_button_cutout_length: float = 58.0
-    side_button_cutout_depth: float = 5.6
+    side_button_cutout_depth: float = 8.0
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 55.0
+    bottom_left_retainer_usb_c_clearance_width: float = 34.0
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
     bottom_speaker_cutout_height: float = 10.8
@@ -209,6 +207,41 @@ def add_slide_in_retention(
             )
         )
 
+    add_bottom_left_retainer(spec, inner_length, inner_width, corner_z, lip_z)
+
+
+def add_bottom_left_retainer(
+    spec: TabA9GolfCaseSpec,
+    inner_length: float,
+    inner_width: float,
+    corner_z: float,
+    lip_z: float,
+) -> None:
+    retainer_width = inner_width / 2 - spec.bottom_left_retainer_usb_c_clearance_width / 2
+    retainer_y = -inner_width / 2 + retainer_width / 2
+    wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
+    lip_x = inner_length / 2 - spec.snap_latch_depth / 2
+
+    add(
+        rounded_box_xy(
+            spec.snap_latch_thickness,
+            retainer_width,
+            spec.corner_wall_height,
+            center=(wall_x, retainer_y, corner_z),
+            radius=spec.snap_tab_radius,
+        )
+    )
+
+    add(
+        rounded_box_xy(
+            spec.snap_latch_depth,
+            retainer_width,
+            spec.front_lip_height,
+            center=(lip_x, retainer_y, lip_z),
+            radius=spec.snap_tab_radius,
+        )
+    )
+
 
 def cut_device_controls(
     spec: TabA9GolfCaseSpec,
@@ -218,18 +251,6 @@ def cut_device_controls(
 ) -> None:
     wall = spec.corner_wall_thickness
     control_z = back_top_z + spec.side_button_cutout_height / 2
-
-    top_mic_x = -inner_length / 2 - wall / 2
-    add(
-        rounded_box_xy(
-            spec.top_mic_cutout_depth,
-            spec.top_mic_cutout_width,
-            spec.top_mic_cutout_height,
-            center=(top_mic_x, 0, control_z),
-            radius=spec.rail_end_radius,
-        ),
-        mode=Mode.SUBTRACT,
-    )
 
     button_x = -inner_length / 2 + spec.side_button_cutout_center_from_top
     button_y = inner_width / 2 + wall / 2
@@ -358,10 +379,12 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("corner_wall_height must reach the top of the front lip")
     if spec.side_rail_open_gap <= spec.snap_latch_thickness:
         raise ValueError("side_rail_open_gap must leave room for the snap latches to flex")
-    if spec.top_mic_cutout_width <= 0 or spec.top_mic_cutout_depth <= 0:
-        raise ValueError("top mic cutout dimensions must be positive")
     if spec.side_button_cutout_length <= 0 or spec.side_button_cutout_depth <= 0:
         raise ValueError("side button cutout dimensions must be positive")
+    if spec.bottom_left_retainer_usb_c_clearance_width <= 0:
+        raise ValueError("bottom-left retainer USB-C clearance must be positive")
+    if spec.bottom_left_retainer_usb_c_clearance_width >= spec.tablet_width:
+        raise ValueError("bottom-left retainer USB-C clearance must fit within the tablet width")
     if spec.bottom_speaker_cutout_width <= 0 or spec.bottom_speaker_cutout_depth <= 0:
         raise ValueError("bottom speaker cutout dimensions must be positive")
     if spec.bottom_speaker_cutout_center_from_right <= spec.bottom_speaker_cutout_width / 2:

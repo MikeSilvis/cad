@@ -2,9 +2,9 @@
 
 Magnetic case for the Samsung Galaxy Tab A9 8.7-inch tablet. The case body uses
 recessed pockets for six adhesive-backed bar magnets, slide-in side retention,
-and screwless snap catches at the open end. The default case includes clearance
-cutouts for the top microphone, right-side power/volume buttons, and bottom-right
-speaker area.
+and screwless snap catches at the open end. The default case includes a clean
+right-side power/volume button relief, a bottom-right speaker relief, and a longer
+bottom-left retainer that stops before the USB-C area.
 
 ## Artifacts
 

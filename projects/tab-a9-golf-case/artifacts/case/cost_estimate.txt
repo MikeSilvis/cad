@@ -3,10 +3,10 @@ Model: tab_a9_golf_case
 Rough material estimate from CAD solid volume.
 Slicer settings such as infill, walls, supports, purge, and brim will change the final cost.
 
-Volume: 142.37 cm^3 (142373 mm^3)
-Solid material mass: 180.8 g
-Estimated print material: 202.5 g
-Estimated material cost: $4.86
+Volume: 143.20 cm^3 (143201 mm^3)
+Solid material mass: 181.9 g
+Estimated print material: 203.7 g
+Estimated material cost: $4.89
 
 Assumptions:
 - Filament density: 1.27 g/cm^3
