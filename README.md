@@ -78,9 +78,10 @@ be built without the optional rear text pockets:
 .venv/bin/cad build tab_a9_golf_case --set include_text=false
 ```
 
-## Add A New Design
+## Add A Shared Design
 
-Create a new design from the template:
+Use `designs/` for generic shared examples or reusable parts that do not belong
+to one project. Create a new shared design from the template:
 
 ```sh
 .venv/bin/cad new my_part --description "What this part is for."
@@ -102,12 +103,14 @@ Use a stable kebab-case folder under `projects/`:
 projects/<project-id>/
   project.toml
   README.md
+  designs/<model-name>.py
   artifacts/<artifact-slug>/
   renders/<project-id>_final.png
 ```
 
-The manifest chooses which discovered model(s) belong to the project and where
-their committed artifacts are written:
+Put project-specific CAD source in `projects/<project-id>/designs/`. The manifest
+chooses which discovered model(s) belong to the project and where their committed
+artifacts are written:
 
 ```toml
 id = "my-project"

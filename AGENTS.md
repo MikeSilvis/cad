@@ -10,6 +10,7 @@ For any user-facing printable object, create or update:
 projects/<project-id>/
   project.toml
   README.md
+  designs/<model-name>.py
   artifacts/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
@@ -19,7 +20,9 @@ projects/<project-id>/
   renders/<project-id>_final.png
 ```
 
-- Keep source models in `designs/` with snake_case model names.
+- Keep generic reusable models in root `designs/`; keep user-facing
+  project-specific models in `projects/<project-id>/designs/`.
+- Use snake_case model names and design filenames.
 - Use kebab-case for `projects/<project-id>` and artifact slugs.
 - Treat `exports/` as scratch output; committed generated CAD files belong only
   under `projects/<project-id>/artifacts/`.

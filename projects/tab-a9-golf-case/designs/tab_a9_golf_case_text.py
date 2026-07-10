@@ -1,5 +1,8 @@
 from cad_workspace.model import CadModel
-from designs.tab_a9_golf_case import TabA9GolfCaseSpec, build_text_inlay
+from cad_project_tab_a9_golf_case_tab_a9_golf_case import (
+    TabA9GolfCaseSpec,
+    build_text_inlay,
+)
 
 
 MODEL = CadModel(

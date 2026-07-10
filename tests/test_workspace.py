@@ -5,7 +5,6 @@ from cad_workspace.model import coerce_value
 from cad_workspace.projects import discover_projects
 from cad_workspace.render import compose_labeled_grid, title_from_slug
 from cad_workspace.registry import discover_models
-from designs.tab_a9_golf_case import TabA9GolfCaseSpec
 from PIL import Image
 
 
@@ -17,6 +16,15 @@ def test_discovers_multiple_models():
     assert "spacer" in models
     assert "tab_a9_golf_case" in models
     assert "tab_a9_golf_case_text" in models
+
+
+def test_discovers_project_local_models():
+    models = discover_models()
+
+    assert models["tab_a9_golf_case"].build.__module__.startswith("cad_project_tab_a9_golf_case")
+    assert models["tab_a9_golf_case_text"].build.__module__.startswith(
+        "cad_project_tab_a9_golf_case"
+    )
 
 
 def test_models_build_solid_parts():
@@ -31,7 +39,7 @@ def test_tab_a9_golf_case_defaults_match_magnet_layout():
     spec = model.default_spec()
     part = model.build(spec)
 
-    assert isinstance(spec, TabA9GolfCaseSpec)
+    assert type(spec).__name__ == "TabA9GolfCaseSpec"
     assert spec.magnet_rows * spec.magnet_columns == 6
     assert spec.front_lip_clearance > 0
     assert spec.side_rail_open_gap > spec.snap_latch_thickness

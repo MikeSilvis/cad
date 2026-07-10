@@ -10,8 +10,9 @@ This repo is a Python-first CAD workspace for AI-assisted 3D modeling.
 - Export STL for slicers, STEP for CAD interchange, and PNG for quick visual review.
 - Treat `exports/` as scratch space. Commit generated files only through the
   project layout under `projects/<project-id>/`.
-- For any user-facing printable object, create or update a project folder with
-  a manifest, README, committed artifacts, and a standard final render.
+- For any user-facing printable object, keep project-specific source inside the
+  project folder with a manifest, README, committed artifacts, and a standard
+  final render.
 
 ## Project Commands
 
@@ -39,9 +40,10 @@ Useful direct CLI commands:
 .venv/bin/cad new phone_stand --description "Angled phone stand with charging slot."
 ```
 
-## Adding A Design
+## Adding A Shared Design
 
-New designs go in `designs/`.
+Generic reusable designs go in `designs/`. User-facing project-specific designs
+go in `projects/<project-id>/designs/`.
 
 Each design should:
 
@@ -57,7 +59,8 @@ Use this when starting from scratch:
 .venv/bin/cad new my_part --description "Short description."
 ```
 
-Then edit `designs/my_part.py`.
+Then edit `designs/my_part.py`, or move the source under a project folder if the
+part belongs to a specific printable project.
 
 ## Adding A Project
 
@@ -68,6 +71,7 @@ inspect, or share. Keep this layout:
 projects/<project-id>/
   project.toml
   README.md
+  designs/<model-name>.py
   artifacts/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
@@ -77,9 +81,10 @@ projects/<project-id>/
   renders/<project-id>_final.png
 ```
 
-Project IDs use kebab-case. CAD model names stay snake_case. Artifact slugs use
-kebab-case and should describe the printable part, such as `case`, `text-inlay`,
-`mounting-plate`, or `spacer-set`.
+Project IDs use kebab-case. Project-specific CAD source lives in
+`projects/<project-id>/designs/`. CAD model names and design filenames stay
+snake_case. Artifact slugs use kebab-case and should describe the printable part,
+such as `case`, `text-inlay`, `mounting-plate`, or `spacer-set`.
 
 Each `project.toml` should define the stable project metadata and the artifacts
 that `cad package` must regenerate:
