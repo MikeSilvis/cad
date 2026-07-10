@@ -21,36 +21,40 @@ def export_model(
     output_root: Path,
     formats: Iterable[str],
     cost_settings: CostSettings | None = None,
+    *,
+    directory_name: str | None = None,
+    file_stem: str | None = None,
 ) -> list[Path]:
     requested_formats = normalize_formats(formats)
-    model_dir = output_root / model.name
-    model_dir.mkdir(parents=True, exist_ok=True)
+    artifact_dir = output_root / (directory_name or model.name)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    stem = file_stem or model.name
 
     part = model.build(spec)
     written: list[Path] = []
     stl_path: Path | None = None
 
     if "stl" in requested_formats or "png" in requested_formats:
-        stl_path = model_dir / f"{model.name}.stl"
+        stl_path = artifact_dir / f"{stem}.stl"
         export_stl(part, stl_path)
         if "stl" in requested_formats:
             written.append(stl_path)
 
     if "step" in requested_formats:
-        step_path = model_dir / f"{model.name}.step"
+        step_path = artifact_dir / f"{stem}.step"
         export_step(part, step_path)
         written.append(step_path)
 
     if "png" in requested_formats:
         if stl_path is None:
             raise RuntimeError("PNG export requires an STL intermediate")
-        png_path = model_dir / f"{model.name}.png"
+        png_path = artifact_dir / f"{stem}.png"
         export_png_from_stl(stl_path, png_path)
         written.append(png_path)
 
     if cost_settings is not None:
         estimate = estimate_cost(model.name, part.volume, cost_settings)
-        written.extend(write_cost_estimate(model_dir, estimate))
+        written.extend(write_cost_estimate(artifact_dir, estimate))
 
     return written
 

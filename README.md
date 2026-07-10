@@ -26,6 +26,18 @@ Build every design:
 mise run build
 ```
 
+List configured projects:
+
+```sh
+mise run projects
+```
+
+Build committed artifacts for one project:
+
+```sh
+mise run package -- tab-a9-golf-case
+```
+
 Build one design with dimension overrides:
 
 ```sh
@@ -38,6 +50,10 @@ Exports go into `exports/<model-name>/`:
 - `.step` for CAD tools
 - `.png` for quick previews
 - `cost_estimate.txt` and `cost_estimate.json` for rough material cost estimates
+
+`exports/` is scratch space and is not committed. Print-ready files that should
+live in git belong under `projects/<project-id>/artifacts/<artifact-slug>/`,
+generated from `projects/<project-id>/project.toml` with `cad package`.
 
 Cost estimates use CAD solid volume, so slicer settings such as infill, supports,
 brim, purge, and wall count can change the final result. Override the assumptions
@@ -69,6 +85,33 @@ Then edit:
 - `MODEL.name` and `MODEL.description` for discovery
 
 Run `mise run list` to confirm the new model is discovered.
+
+## Add A New Project
+
+Use a stable kebab-case folder under `projects/`:
+
+```text
+projects/<project-id>/
+  project.toml
+  README.md
+  artifacts/<artifact-slug>/
+```
+
+The manifest chooses which discovered model(s) belong to the project and where
+their committed artifacts are written:
+
+```toml
+id = "my-project"
+title = "My Project"
+description = "Short human description."
+
+[[artifact]]
+slug = "printable-part"
+model = "my_part"
+formats = ["stl", "step", "png"]
+```
+
+Run `mise run package -- my-project` to refresh the committed artifacts.
 
 ## Useful Prompts
 

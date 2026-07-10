@@ -1,6 +1,8 @@
 from cad_workspace.cost import CostSettings, estimate_cost
 from cad_workspace.cli import parse_overrides, to_pascal_case
+from cad_workspace.exporter import export_model
 from cad_workspace.model import coerce_value
+from cad_workspace.projects import discover_projects
 from cad_workspace.registry import discover_models
 from designs.tab_a9_golf_case import TabA9GolfCaseSpec
 
@@ -64,6 +66,35 @@ def test_cost_estimate_uses_density_price_and_multiplier():
     assert estimate.solid_mass_g == 1.25
     assert round(estimate.estimated_material_g, 4) == 1.375
     assert round(estimate.estimated_cost_usd, 4) == 0.0275
+
+
+def test_discovers_configured_projects():
+    projects = discover_projects()
+    project = projects["tab-a9-golf-case"]
+
+    assert project.title == "Samsung Galaxy Tab A9 Golf Case"
+    assert [artifact.slug for artifact in project.artifacts] == ["case", "text-inlay"]
+    assert [artifact.model for artifact in project.artifacts] == [
+        "tab_a9_golf_case",
+        "tab_a9_golf_case_text",
+    ]
+
+
+def test_export_model_can_use_project_artifact_names(tmp_path):
+    model = discover_models()["spacer"]
+    spec = model.default_spec()
+
+    written = export_model(
+        model,
+        spec,
+        tmp_path,
+        ["stl"],
+        directory_name="printable-spacer",
+        file_stem="spacer-v1",
+    )
+
+    assert written == [tmp_path / "printable-spacer" / "spacer-v1.stl"]
+    assert written[0].exists()
 
 
 def test_parameter_overrides_are_applied():

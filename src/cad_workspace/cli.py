@@ -7,6 +7,12 @@ from pathlib import Path
 from cad_workspace.cost import CostSettings
 from cad_workspace.exporter import SUPPORTED_FORMATS, export_model
 from cad_workspace.model import SpecError
+from cad_workspace.projects import (
+    DEFAULT_PROJECTS_ROOT,
+    discover_projects,
+    load_project,
+    package_project,
+)
 from cad_workspace.registry import discover_models
 
 
@@ -48,29 +54,31 @@ def main() -> None:
         default=Path("exports"),
         help="Output directory. Defaults to ./exports.",
     )
-    build_parser.add_argument(
-        "--filament-density",
-        type=float,
-        default=CostSettings.filament_density_g_cm3,
-        help="Filament density in g/cm^3 for cost estimates. Defaults to PETG-like 1.27.",
+    add_cost_arguments(build_parser)
+
+    project_parser = subparsers.add_parser(
+        "projects",
+        help="List configured projects under projects/<project-id>/.",
     )
-    build_parser.add_argument(
-        "--filament-cost-per-kg",
-        type=float,
-        default=CostSettings.filament_cost_per_kg,
-        help="Filament cost in dollars per kilogram. Defaults to 24.",
+    project_parser.add_argument(
+        "--projects-root",
+        type=Path,
+        default=DEFAULT_PROJECTS_ROOT,
+        help="Directory that contains project folders. Defaults to ./projects.",
     )
-    build_parser.add_argument(
-        "--material-multiplier",
-        type=float,
-        default=CostSettings.material_multiplier,
-        help="Multiplier for purge, brim, supports, and print waste. Defaults to 1.12.",
+
+    package_parser = subparsers.add_parser(
+        "package",
+        help="Build committed artifacts for a configured project.",
     )
-    build_parser.add_argument(
-        "--no-cost",
-        action="store_true",
-        help="Skip writing cost_estimate.json and cost_estimate.txt.",
+    package_parser.add_argument("project", help="Project id, like tab-a9-golf-case")
+    package_parser.add_argument(
+        "--projects-root",
+        type=Path,
+        default=DEFAULT_PROJECTS_ROOT,
+        help="Directory that contains project folders. Defaults to ./projects.",
     )
+    add_cost_arguments(package_parser)
 
     args = parser.parse_args()
 
@@ -83,21 +91,59 @@ def main() -> None:
         return
 
     if args.command == "build":
-        cost_settings = None
-        if not args.no_cost:
-            cost_settings = CostSettings(
-                filament_density_g_cm3=args.filament_density,
-                filament_cost_per_kg=args.filament_cost_per_kg,
-                material_multiplier=args.material_multiplier,
-            )
-
         build_models(
             args.model,
             args.formats or SUPPORTED_FORMATS,
             args.overrides,
             args.out,
-            cost_settings,
+            cost_settings_from_args(args),
         )
+        return
+
+    if args.command == "projects":
+        list_projects(args.projects_root)
+        return
+
+    if args.command == "package":
+        package_selected_project(args.project, args.projects_root, cost_settings_from_args(args))
+        return
+
+
+def add_cost_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--filament-density",
+        type=float,
+        default=CostSettings.filament_density_g_cm3,
+        help="Filament density in g/cm^3 for cost estimates. Defaults to PETG-like 1.27.",
+    )
+    parser.add_argument(
+        "--filament-cost-per-kg",
+        type=float,
+        default=CostSettings.filament_cost_per_kg,
+        help="Filament cost in dollars per kilogram. Defaults to 24.",
+    )
+    parser.add_argument(
+        "--material-multiplier",
+        type=float,
+        default=CostSettings.material_multiplier,
+        help="Multiplier for purge, brim, supports, and print waste. Defaults to 1.12.",
+    )
+    parser.add_argument(
+        "--no-cost",
+        action="store_true",
+        help="Skip writing cost_estimate.json and cost_estimate.txt.",
+    )
+
+
+def cost_settings_from_args(args: argparse.Namespace) -> CostSettings | None:
+    if args.no_cost:
+        return None
+
+    return CostSettings(
+        filament_density_g_cm3=args.filament_density,
+        filament_cost_per_kg=args.filament_cost_per_kg,
+        material_multiplier=args.material_multiplier,
+    )
 
 
 def list_models() -> None:
@@ -107,6 +153,33 @@ def list_models() -> None:
         print(f"{model.name}: {model.description}")
         for name, field_type, default in model.spec_fields():
             print(f"  {name} ({type_name(field_type)}): {default}")
+
+
+def list_projects(projects_root: Path) -> None:
+    projects = discover_projects(projects_root)
+
+    for project in projects.values():
+        print(f"{project.project_id}: {project.title}")
+        if project.description:
+            print(f"  {project.description}")
+        for artifact in project.artifacts:
+            formats = ", ".join(artifact.formats)
+            print(f"  {artifact.slug}: {artifact.model} ({formats})")
+
+
+def package_selected_project(
+    project_id: str,
+    projects_root: Path,
+    cost_settings: CostSettings | None,
+) -> None:
+    try:
+        project = load_project(project_id, projects_root)
+        written = package_project(project, cost_settings=cost_settings)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+
+    for path in written:
+        print(f"Exported {path}")
 
 
 def build_models(

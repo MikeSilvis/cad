@@ -3,6 +3,7 @@ exports/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+.DS_Store
 *.stl
 *.3mf
 *.amf
@@ -10,3 +11,6 @@ __pycache__/
 *.step
 *.stp
 *.brep
+!projects/**/artifacts/**/*.stl
+!projects/**/artifacts/**/*.step
+!projects/**/artifacts/**/*.stp

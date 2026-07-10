@@ -13,6 +13,14 @@ run = ".venv/bin/cad list"
 description = "Build every CAD model into exports/."
 run = ".venv/bin/cad build all"
 
+[tasks.projects]
+description = "List configured CAD projects."
+run = ".venv/bin/cad projects"
+
+[tasks.package]
+description = "Build committed artifacts for a configured project: mise run package -- <project-id>."
+run = ".venv/bin/cad package"
+
 [tasks.test]
 description = "Run the Python test suite."
 run = ".venv/bin/python -m pytest"
@@ -20,4 +28,3 @@ run = ".venv/bin/python -m pytest"
 [tasks.validate]
 description = "Run tests and build all CAD exports."
 run = "mise run test && mise run build"
-
