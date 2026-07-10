@@ -58,10 +58,10 @@ Exports go into `exports/<model-name>/`:
 - `cost_estimate.txt` and `cost_estimate.json` for rough material cost estimates
 
 `exports/` is scratch space and is not committed. Print-ready files that should
-live in git belong under `projects/<project-id>/artifacts/<artifact-slug>/`,
+live in git belong under `projects/<project-id>/outputs/<artifact-slug>/`,
 generated from `projects/<project-id>/project.toml` with `cad package`. Every
 project package also writes a standard summary PNG to
-`projects/<project-id>/renders/<project-id>_final.png`.
+`projects/<project-id>/outputs/overview.png`.
 
 Cost estimates use CAD solid volume, so slicer settings such as infill, supports,
 brim, purge, and wall count can change the final result. Override the assumptions
@@ -104,8 +104,8 @@ projects/<project-id>/
   project.toml
   README.md
   designs/<model-name>.py
-  artifacts/<artifact-slug>/
-  renders/<project-id>_final.png
+  outputs/<artifact-slug>/
+  outputs/overview.png
 ```
 
 Put project-specific CAD source in `projects/<project-id>/designs/`. The manifest

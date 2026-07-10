@@ -13,6 +13,7 @@ from cad_workspace.render import render_project
 
 
 DEFAULT_PROJECTS_ROOT = Path("projects")
+PROJECT_OUTPUTS_DIR = "outputs"
 
 
 @dataclass(frozen=True)
@@ -101,7 +102,7 @@ def package_project(
     cost_settings: CostSettings | None,
 ) -> list[Path]:
     models = discover_models()
-    artifacts_root = project.path / "artifacts"
+    outputs_root = project.path / PROJECT_OUTPUTS_DIR
     written: list[Path] = []
 
     for artifact in project.artifacts:
@@ -122,7 +123,7 @@ def package_project(
             export_model(
                 model,
                 spec,
-                artifacts_root,
+                outputs_root,
                 artifact.formats,
                 cost_settings,
                 directory_name=artifact.slug,

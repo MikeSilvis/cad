@@ -16,18 +16,22 @@ class RenderProject(Protocol):
     artifacts: tuple[RenderArtifact, ...]
 
 
+PROJECT_OUTPUTS_DIR = "outputs"
+PROJECT_OVERVIEW_FILENAME = "overview.png"
+
+
 def render_project(project: RenderProject) -> Path | None:
     images: list[tuple[str, Image.Image]] = []
 
     for artifact in project.artifacts:
-        image_path = project.path / "artifacts" / artifact.slug / f"{artifact.slug}.png"
+        image_path = project.path / PROJECT_OUTPUTS_DIR / artifact.slug / f"{artifact.slug}.png"
         if image_path.exists():
             images.append((title_from_slug(artifact.slug), Image.open(image_path).convert("RGB")))
 
     if not images:
         return None
 
-    output_path = project.path / "renders" / f"{project.project_id}_final.png"
+    output_path = project.path / PROJECT_OUTPUTS_DIR / PROJECT_OVERVIEW_FILENAME
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     canvas = compose_labeled_grid(images)

@@ -11,13 +11,13 @@ projects/<project-id>/
   project.toml
   README.md
   designs/<model-name>.py
-  artifacts/<artifact-slug>/
+  outputs/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
     <artifact-slug>.png
     cost_estimate.json
     cost_estimate.txt
-  renders/<project-id>_final.png
+  outputs/overview.png
 ```
 
 - Keep generic reusable models in root `designs/`; keep user-facing
@@ -27,7 +27,7 @@ projects/<project-id>/
   overrides for boolean/dimensional variants instead of duplicating CAD source.
 - Use kebab-case for `projects/<project-id>` and artifact slugs.
 - Treat `exports/` as scratch output; committed generated CAD files belong only
-  under `projects/<project-id>/artifacts/`.
+  under `projects/<project-id>/outputs/`.
 - Run `mise run package -- <project-id>` after changing a project so artifacts,
   costs, and the standard final render are refreshed together.
 - Run `mise run render -- <project-id>` when only the final PNG needs to be
@@ -46,5 +46,5 @@ mise run validate
 ```
 
 Before handing work back, inspect the final render at
-`projects/<project-id>/renders/<project-id>_final.png` when the task affects
+`projects/<project-id>/outputs/overview.png` when the task affects
 geometry, fit, artifact packaging, or presentation.

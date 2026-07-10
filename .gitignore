@@ -11,6 +11,6 @@ __pycache__/
 *.step
 *.stp
 *.brep
-!projects/**/artifacts/**/*.stl
-!projects/**/artifacts/**/*.step
-!projects/**/artifacts/**/*.stp
+!projects/**/outputs/**/*.stl
+!projects/**/outputs/**/*.step
+!projects/**/outputs/**/*.stp

@@ -73,13 +73,13 @@ projects/<project-id>/
   project.toml
   README.md
   designs/<model-name>.py
-  artifacts/<artifact-slug>/
+  outputs/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
     <artifact-slug>.png
     cost_estimate.json
     cost_estimate.txt
-  renders/<project-id>_final.png
+  outputs/overview.png
 ```
 
 Project IDs use kebab-case. Project-specific CAD source lives in
@@ -126,8 +126,8 @@ For project work, also run:
 mise run package -- <project-id>
 ```
 
-Then inspect `projects/<project-id>/renders/<project-id>_final.png` and the
-artifact PNGs before handing work back.
+Then inspect `projects/<project-id>/outputs/overview.png` and the artifact PNGs
+before handing work back.
 
 ## Modeling Style
 

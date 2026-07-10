@@ -2,8 +2,8 @@ from cad_workspace.cost import CostSettings, estimate_cost
 from cad_workspace.cli import parse_overrides, to_pascal_case
 from cad_workspace.exporter import export_model
 from cad_workspace.model import coerce_value
-from cad_workspace.projects import discover_projects
-from cad_workspace.render import compose_labeled_grid, title_from_slug
+from cad_workspace.projects import Project, ProjectArtifact, discover_projects
+from cad_workspace.render import compose_labeled_grid, render_project, title_from_slug
 from cad_workspace.registry import discover_models
 from PIL import Image
 
@@ -134,6 +134,33 @@ def test_render_helpers_make_standard_project_preview():
 
     assert image.size == (1864, 710)
     assert title_from_slug("text-inlay") == "Text Inlay"
+
+
+def test_render_project_writes_overview_to_outputs(tmp_path):
+    project_path = tmp_path / "example"
+    preview_path = project_path / "outputs" / "case" / "case.png"
+    preview_path.parent.mkdir(parents=True)
+    Image.new("RGB", (100, 60), (20, 80, 140)).save(preview_path)
+
+    render_path = render_project(
+        Project(
+            project_id="example",
+            title="Example",
+            description="",
+            path=project_path,
+            artifacts=(
+                ProjectArtifact(
+                    slug="case",
+                    model="example_case",
+                    formats=("png",),
+                    overrides={},
+                ),
+            ),
+        )
+    )
+
+    assert render_path == project_path / "outputs" / "overview.png"
+    assert render_path.exists()
 
 
 def test_parameter_overrides_are_applied():
