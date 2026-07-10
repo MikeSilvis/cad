@@ -37,6 +37,22 @@ Exports go into `exports/<model-name>/`:
 - `.stl` for slicers and 3D printing
 - `.step` for CAD tools
 - `.png` for quick previews
+- `cost_estimate.txt` and `cost_estimate.json` for rough material cost estimates
+
+Cost estimates use CAD solid volume, so slicer settings such as infill, supports,
+brim, purge, and wall count can change the final result. Override the assumptions
+when building:
+
+```sh
+.venv/bin/cad build tab_a9_golf_case --filament-cost-per-kg=30 --filament-density=1.24
+```
+
+Design parameters can be overridden at build time. For example, the Tab A9 case can
+be built without the optional rear text pockets:
+
+```sh
+.venv/bin/cad build tab_a9_golf_case --set include_text=false
+```
 
 ## Add A New Design
 

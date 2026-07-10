@@ -8,6 +8,7 @@ from typing import Any, Iterable
 
 from build123d import export_step, export_stl
 
+from cad_workspace.cost import CostSettings, estimate_cost, write_cost_estimate
 from cad_workspace.model import CadModel
 
 
@@ -19,6 +20,7 @@ def export_model(
     spec: Any,
     output_root: Path,
     formats: Iterable[str],
+    cost_settings: CostSettings | None = None,
 ) -> list[Path]:
     requested_formats = normalize_formats(formats)
     model_dir = output_root / model.name
@@ -45,6 +47,10 @@ def export_model(
         png_path = model_dir / f"{model.name}.png"
         export_png_from_stl(stl_path, png_path)
         written.append(png_path)
+
+    if cost_settings is not None:
+        estimate = estimate_cost(model.name, part.volume, cost_settings)
+        written.extend(write_cost_estimate(model_dir, estimate))
 
     return written
 

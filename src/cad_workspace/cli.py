@@ -4,6 +4,7 @@ import argparse
 import re
 from pathlib import Path
 
+from cad_workspace.cost import CostSettings
 from cad_workspace.exporter import SUPPORTED_FORMATS, export_model
 from cad_workspace.model import SpecError
 from cad_workspace.registry import discover_models
@@ -47,6 +48,29 @@ def main() -> None:
         default=Path("exports"),
         help="Output directory. Defaults to ./exports.",
     )
+    build_parser.add_argument(
+        "--filament-density",
+        type=float,
+        default=CostSettings.filament_density_g_cm3,
+        help="Filament density in g/cm^3 for cost estimates. Defaults to PETG-like 1.27.",
+    )
+    build_parser.add_argument(
+        "--filament-cost-per-kg",
+        type=float,
+        default=CostSettings.filament_cost_per_kg,
+        help="Filament cost in dollars per kilogram. Defaults to 24.",
+    )
+    build_parser.add_argument(
+        "--material-multiplier",
+        type=float,
+        default=CostSettings.material_multiplier,
+        help="Multiplier for purge, brim, supports, and print waste. Defaults to 1.12.",
+    )
+    build_parser.add_argument(
+        "--no-cost",
+        action="store_true",
+        help="Skip writing cost_estimate.json and cost_estimate.txt.",
+    )
 
     args = parser.parse_args()
 
@@ -59,7 +83,21 @@ def main() -> None:
         return
 
     if args.command == "build":
-        build_models(args.model, args.formats or SUPPORTED_FORMATS, args.overrides, args.out)
+        cost_settings = None
+        if not args.no_cost:
+            cost_settings = CostSettings(
+                filament_density_g_cm3=args.filament_density,
+                filament_cost_per_kg=args.filament_cost_per_kg,
+                material_multiplier=args.material_multiplier,
+            )
+
+        build_models(
+            args.model,
+            args.formats or SUPPORTED_FORMATS,
+            args.overrides,
+            args.out,
+            cost_settings,
+        )
 
 
 def list_models() -> None:
@@ -76,6 +114,7 @@ def build_models(
     formats: list[str] | tuple[str, ...],
     raw_overrides: list[str],
     output_root: Path,
+    cost_settings: CostSettings | None,
 ) -> None:
     models = discover_models()
     overrides = parse_overrides(raw_overrides)
@@ -96,7 +135,7 @@ def build_models(
         except SpecError as error:
             raise SystemExit(str(error)) from error
 
-        written = export_model(model, spec, output_root, formats)
+        written = export_model(model, spec, output_root, formats, cost_settings)
         for path in written:
             print(f"Exported {path}")
 
