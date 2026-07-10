@@ -14,6 +14,21 @@ def test_discovers_multiple_models():
     assert "magsafe_desk_holder" in models
     assert "mounting_plate" in models
     assert "spacer" in models
+    assert "tab_a9_golf_case" in models
+    assert "tab_a9_golf_case_text" in models
+
+
+def test_discovers_tab_a9_project_local_models():
+    models = discover_models()
+
+    assert models["tab_a9_golf_case"].build.__module__.startswith("cad_project_tab_a9_golf_case")
+    assert models["tab_a9_golf_case_text"].build.__module__.startswith(
+        "cad_project_tab_a9_golf_case"
+    )
+    assert (
+        models["tab_a9_golf_case"].build.__module__
+        == models["tab_a9_golf_case_text"].build.__module__
+    )
 
 
 def test_models_build_solid_parts():
@@ -38,6 +53,36 @@ def test_cost_estimate_uses_density_price_and_multiplier():
     assert estimate.solid_mass_g == 1.25
     assert round(estimate.estimated_material_g, 4) == 1.375
     assert round(estimate.estimated_cost_usd, 4) == 0.0275
+
+
+def test_tab_a9_golf_case_defaults_match_printable_layout():
+    model = discover_models()["tab_a9_golf_case"]
+    spec = model.default_spec()
+    part = model.build(spec)
+
+    assert type(spec).__name__ == "TabA9GolfCaseSpec"
+    assert spec.magnet_rows * spec.magnet_columns == 6
+    assert spec.back_thickness - spec.magnet_pocket_depth >= 1.5
+    assert spec.side_rail_open_gap > spec.snap_latch_thickness
+    assert spec.include_text is True
+    assert spec.top_text == "Silly"
+    assert spec.bottom_text == "(814) 574-6139"
+    assert spec.side_button_cutout_depth > spec.corner_wall_thickness + spec.front_lip_depth
+    assert spec.bottom_left_retainer_usb_c_clearance_width > 0
+    assert spec.bottom_left_retainer_usb_c_clearance_width < spec.tablet_width
+    assert spec.bottom_speaker_cutout_width > spec.snap_latch_width
+    assert part.bounding_box().size.X > spec.tablet_length
+    assert part.bounding_box().size.Y > spec.tablet_width
+
+
+def test_tab_a9_text_can_be_disabled_from_same_model():
+    case_model = discover_models()["tab_a9_golf_case"]
+    text_model = discover_models()["tab_a9_golf_case_text"]
+    spec = case_model.spec_with_overrides({"include_text": "false"})
+
+    assert spec.include_text is False
+    assert case_model.build(spec).volume > 0
+    assert text_model.build(spec).volume > 0
 
 
 def test_discovers_configured_projects(tmp_path):
@@ -75,6 +120,24 @@ height = 8
     ]
     assert [artifact.model for artifact in project.artifacts] == ["spacer", "spacer"]
     assert project.artifacts[1].overrides == {"height": "8"}
+
+
+def test_tab_a9_project_manifest_outputs():
+    projects = discover_projects()
+    project = projects["tab-a9-golf-case"]
+
+    assert project.title == "Samsung Galaxy Tab A9 Golf Case"
+    assert [artifact.slug for artifact in project.artifacts] == [
+        "case",
+        "case-no-text",
+        "text-inlay",
+    ]
+    assert [artifact.model for artifact in project.artifacts] == [
+        "tab_a9_golf_case",
+        "tab_a9_golf_case",
+        "tab_a9_golf_case_text",
+    ]
+    assert project.artifacts[1].overrides == {"include_text": "False"}
 
 
 def test_export_model_can_use_project_artifact_names(tmp_path):

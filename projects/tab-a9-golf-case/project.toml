@@ -1,0 +1,21 @@
+id = "tab-a9-golf-case"
+title = "Samsung Galaxy Tab A9 Golf Case"
+description = "Magnetic golf-cart tablet case with screwless slide-in retention and optional two-color rear text."
+
+[[artifact]]
+slug = "case"
+model = "tab_a9_golf_case"
+formats = ["stl", "step", "png"]
+
+[[artifact]]
+slug = "case-no-text"
+model = "tab_a9_golf_case"
+formats = ["stl", "step", "png"]
+
+[artifact.overrides]
+include_text = false
+
+[[artifact]]
+slug = "text-inlay"
+model = "tab_a9_golf_case_text"
+formats = ["stl", "step", "png"]
