@@ -26,6 +26,24 @@ Build every design:
 mise run build
 ```
 
+List configured projects:
+
+```sh
+mise run projects
+```
+
+Build committed artifacts for one project:
+
+```sh
+mise run package -- my-project
+```
+
+Refresh the standard final project render without rebuilding CAD files:
+
+```sh
+mise run render -- my-project
+```
+
 Build one design with dimension overrides:
 
 ```sh
@@ -37,10 +55,32 @@ Exports go into `exports/<model-name>/`:
 - `.stl` for slicers and 3D printing
 - `.step` for CAD tools
 - `.png` for quick previews
+- `cost_estimate.txt` and `cost_estimate.json` for rough material cost estimates
 
-## Add A New Design
+`exports/` is scratch space and is not committed. Print-ready files that should
+live in git belong under `projects/<project-id>/outputs/<artifact-slug>/`,
+generated from `projects/<project-id>/project.toml` with `cad package`. Every
+project package also writes a standard summary PNG to
+`projects/<project-id>/outputs/overview.png`.
 
-Create a new design from the template:
+Cost estimates use CAD solid volume, so slicer settings such as infill, supports,
+brim, purge, and wall count can change the final result. Override the assumptions
+when building:
+
+```sh
+.venv/bin/cad build mounting_plate --filament-cost-per-kg=30 --filament-density=1.24
+```
+
+Design parameters can be overridden at build time:
+
+```sh
+.venv/bin/cad build mounting_plate --set length=120 --set hole_spacing=90
+```
+
+## Add A Shared Design
+
+Use `designs/` for generic shared examples or reusable parts that do not belong
+to one project. Create a new shared design from the template:
 
 ```sh
 .venv/bin/cad new my_part --description "What this part is for."
@@ -53,6 +93,52 @@ Then edit:
 - `MODEL.name` and `MODEL.description` for discovery
 
 Run `mise run list` to confirm the new model is discovered.
+
+## Add A New Project
+
+Use a stable kebab-case folder under `projects/`:
+
+```text
+projects/<project-id>/
+  project.toml
+  README.md
+  designs/<model-name>.py
+  outputs/<artifact-slug>/
+  outputs/overview.png
+```
+
+Put project-specific CAD source in `projects/<project-id>/designs/`. The manifest
+chooses which discovered model(s) belong to the project and where their committed
+artifacts are written:
+
+```toml
+id = "my-project"
+title = "My Project"
+description = "Short human description."
+
+[[artifact]]
+slug = "printable-part"
+model = "my_part"
+formats = ["stl", "step", "png"]
+```
+
+One source file may expose multiple buildable models with `MODELS = (...)`.
+Use artifact `overrides` to generate variants from one boolean or dimension
+parameter instead of copying CAD source:
+
+```toml
+[[artifact]]
+slug = "printable-part-no-logo"
+model = "my_part"
+formats = ["stl", "step", "png"]
+
+[artifact.overrides]
+include_logo = false
+```
+
+Run `mise run package -- my-project` to refresh the committed artifacts.
+Run `mise run render -- my-project` to refresh only the final render from
+existing artifact PNGs.
 
 ## Useful Prompts
 

@@ -8,7 +8,11 @@ This repo is a Python-first CAD workspace for AI-assisted 3D modeling.
 - Keep all dimensions in millimeters.
 - Prefer parametric models with a frozen dataclass spec at the top of each design.
 - Export STL for slicers, STEP for CAD interchange, and PNG for quick visual review.
-- Keep generated exports out of git; they belong under `exports/`.
+- Treat `exports/` as scratch space. Commit generated files only through the
+  project layout under `projects/<project-id>/`.
+- For any user-facing printable object, keep project-specific source inside the
+  project folder with a manifest, README, committed artifacts, and a standard
+  final render.
 
 ## Project Commands
 
@@ -18,6 +22,9 @@ Run commands from the repo root:
 mise run setup
 mise run list
 mise run build
+mise run projects
+mise run package -- <project-id>
+mise run render -- <project-id>
 mise run validate
 ```
 
@@ -26,19 +33,24 @@ Useful direct CLI commands:
 ```sh
 .venv/bin/cad list
 .venv/bin/cad build all
+.venv/bin/cad projects
+.venv/bin/cad package my-project
+.venv/bin/cad render my-project
 .venv/bin/cad build mounting_plate --set length=120 --set hole_spacing=90
 .venv/bin/cad new phone_stand --description "Angled phone stand with charging slot."
 ```
 
-## Adding A Design
+## Adding A Shared Design
 
-New designs go in `designs/`.
+Generic reusable designs go in `designs/`. User-facing project-specific designs
+go in `projects/<project-id>/designs/`.
 
 Each design should:
 
 - Define a frozen dataclass named `<PartName>Spec`.
 - Define a `build(spec)` function that returns a build123d part.
-- Define `MODEL = CadModel(...)` with a stable snake_case name.
+- Define `MODEL = CadModel(...)` with a stable snake_case name, or `MODELS = (...)`
+  when one source file exposes multiple related outputs.
 - Keep dimensions as spec fields instead of hard-coded values.
 - Be discoverable by `.venv/bin/cad list`.
 
@@ -48,7 +60,54 @@ Use this when starting from scratch:
 .venv/bin/cad new my_part --description "Short description."
 ```
 
-Then edit `designs/my_part.py`.
+Then edit `designs/my_part.py`, or move the source under a project folder if the
+part belongs to a specific printable project.
+
+## Adding A Project
+
+Use a project whenever the work represents a real thing the user may print,
+inspect, or share. Keep this layout:
+
+```text
+projects/<project-id>/
+  project.toml
+  README.md
+  designs/<model-name>.py
+  outputs/<artifact-slug>/
+    <artifact-slug>.stl
+    <artifact-slug>.step
+    <artifact-slug>.png
+    cost_estimate.json
+    cost_estimate.txt
+  outputs/overview.png
+```
+
+Project IDs use kebab-case. Project-specific CAD source lives in
+`projects/<project-id>/designs/`. CAD model names and design filenames stay
+snake_case. Artifact slugs use kebab-case and should describe the printable part,
+such as `case`, `text-inlay`, `mounting-plate`, or `spacer-set`.
+
+Each `project.toml` should define the stable project metadata and the artifacts
+that `cad package` must regenerate:
+
+```toml
+id = "my-project"
+title = "My Project"
+description = "Short human description."
+
+[[artifact]]
+slug = "printable-part"
+model = "my_part"
+formats = ["stl", "step", "png"]
+```
+
+Use artifact overrides to generate variants from the same model, such as
+`include_text=false`, instead of copying or forking source files.
+
+Run `mise run package -- <project-id>` after changing a printable project. This
+refreshes committed STL/STEP/PNG files, cost estimates, and the standard final
+render. Use `mise run render -- <project-id>` when only the summary PNG needs to
+be regenerated from existing artifact PNGs.
 
 ## Validation
 
@@ -60,6 +119,15 @@ mise run validate
 
 This runs tests and exports every registered model. Inspect the generated PNGs under
 `exports/<model-name>/` when shape or orientation matters.
+
+For project work, also run:
+
+```sh
+mise run package -- <project-id>
+```
+
+Then inspect `projects/<project-id>/outputs/overview.png` and the artifact PNGs
+before handing work back.
 
 ## Modeling Style
 
@@ -93,4 +161,3 @@ and a raised rim. Keep every important dimension parameterized.
 Make a printable spacer for an M5 bolt: 18mm outer diameter, 5.4mm inner diameter,
 and 12mm tall. Export it and show me the preview.
 ```
-
