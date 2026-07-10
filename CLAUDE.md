@@ -8,7 +8,10 @@ This repo is a Python-first CAD workspace for AI-assisted 3D modeling.
 - Keep all dimensions in millimeters.
 - Prefer parametric models with a frozen dataclass spec at the top of each design.
 - Export STL for slicers, STEP for CAD interchange, and PNG for quick visual review.
-- Keep generated exports out of git; they belong under `exports/`.
+- Treat `exports/` as scratch space. Commit generated files only through the
+  project layout under `projects/<project-id>/`.
+- For any user-facing printable object, create or update a project folder with
+  a manifest, README, committed artifacts, and a standard final render.
 
 ## Project Commands
 
@@ -18,6 +21,9 @@ Run commands from the repo root:
 mise run setup
 mise run list
 mise run build
+mise run projects
+mise run package -- <project-id>
+mise run render -- <project-id>
 mise run validate
 ```
 
@@ -26,6 +32,9 @@ Useful direct CLI commands:
 ```sh
 .venv/bin/cad list
 .venv/bin/cad build all
+.venv/bin/cad projects
+.venv/bin/cad package tab-a9-golf-case
+.venv/bin/cad render tab-a9-golf-case
 .venv/bin/cad build mounting_plate --set length=120 --set hole_spacing=90
 .venv/bin/cad new phone_stand --description "Angled phone stand with charging slot."
 ```
@@ -50,6 +59,47 @@ Use this when starting from scratch:
 
 Then edit `designs/my_part.py`.
 
+## Adding A Project
+
+Use a project whenever the work represents a real thing the user may print,
+inspect, or share. Keep this layout:
+
+```text
+projects/<project-id>/
+  project.toml
+  README.md
+  artifacts/<artifact-slug>/
+    <artifact-slug>.stl
+    <artifact-slug>.step
+    <artifact-slug>.png
+    cost_estimate.json
+    cost_estimate.txt
+  renders/<project-id>_final.png
+```
+
+Project IDs use kebab-case. CAD model names stay snake_case. Artifact slugs use
+kebab-case and should describe the printable part, such as `case`, `text-inlay`,
+`mounting-plate`, or `spacer-set`.
+
+Each `project.toml` should define the stable project metadata and the artifacts
+that `cad package` must regenerate:
+
+```toml
+id = "my-project"
+title = "My Project"
+description = "Short human description."
+
+[[artifact]]
+slug = "printable-part"
+model = "my_part"
+formats = ["stl", "step", "png"]
+```
+
+Run `mise run package -- <project-id>` after changing a printable project. This
+refreshes committed STL/STEP/PNG files, cost estimates, and the standard final
+render. Use `mise run render -- <project-id>` when only the summary PNG needs to
+be regenerated from existing artifact PNGs.
+
 ## Validation
 
 After changing CAD code, run:
@@ -60,6 +110,15 @@ mise run validate
 
 This runs tests and exports every registered model. Inspect the generated PNGs under
 `exports/<model-name>/` when shape or orientation matters.
+
+For project work, also run:
+
+```sh
+mise run package -- <project-id>
+```
+
+Then inspect `projects/<project-id>/renders/<project-id>_final.png` and the
+artifact PNGs before handing work back.
 
 ## Modeling Style
 
@@ -93,4 +152,3 @@ and a raised rim. Keep every important dimension parameterized.
 Make a printable spacer for an M5 bolt: 18mm outer diameter, 5.4mm inner diameter,
 and 12mm tall. Export it and show me the preview.
 ```
-

@@ -21,6 +21,10 @@ run = ".venv/bin/cad projects"
 description = "Build committed artifacts for a configured project: mise run package -- <project-id>."
 run = ".venv/bin/cad package"
 
+[tasks.render]
+description = "Build the standard final PNG render for a configured project: mise run render -- <project-id>."
+run = ".venv/bin/cad render"
+
 [tasks.test]
 description = "Run the Python test suite."
 run = ".venv/bin/python -m pytest"

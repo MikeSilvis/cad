@@ -38,6 +38,12 @@ Build committed artifacts for one project:
 mise run package -- tab-a9-golf-case
 ```
 
+Refresh the standard final project render without rebuilding CAD files:
+
+```sh
+mise run render -- tab-a9-golf-case
+```
+
 Build one design with dimension overrides:
 
 ```sh
@@ -53,7 +59,9 @@ Exports go into `exports/<model-name>/`:
 
 `exports/` is scratch space and is not committed. Print-ready files that should
 live in git belong under `projects/<project-id>/artifacts/<artifact-slug>/`,
-generated from `projects/<project-id>/project.toml` with `cad package`.
+generated from `projects/<project-id>/project.toml` with `cad package`. Every
+project package also writes a standard summary PNG to
+`projects/<project-id>/renders/<project-id>_final.png`.
 
 Cost estimates use CAD solid volume, so slicer settings such as infill, supports,
 brim, purge, and wall count can change the final result. Override the assumptions
@@ -95,6 +103,7 @@ projects/<project-id>/
   project.toml
   README.md
   artifacts/<artifact-slug>/
+  renders/<project-id>_final.png
 ```
 
 The manifest chooses which discovered model(s) belong to the project and where
@@ -112,6 +121,8 @@ formats = ["stl", "step", "png"]
 ```
 
 Run `mise run package -- my-project` to refresh the committed artifacts.
+Run `mise run render -- my-project` to refresh only the final render from
+existing artifact PNGs.
 
 ## Useful Prompts
 

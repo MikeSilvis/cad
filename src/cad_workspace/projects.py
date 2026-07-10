@@ -9,6 +9,7 @@ from cad_workspace.cost import CostSettings
 from cad_workspace.exporter import SUPPORTED_FORMATS, export_model, normalize_formats
 from cad_workspace.model import SpecError
 from cad_workspace.registry import discover_models
+from cad_workspace.render import render_project
 
 
 DEFAULT_PROJECTS_ROOT = Path("projects")
@@ -128,6 +129,10 @@ def package_project(
                 file_stem=artifact.slug,
             )
         )
+
+    render_path = render_project(project)
+    if render_path is not None:
+        written.append(render_path)
 
     return written
 

@@ -8,7 +8,7 @@ and screwless snap catches at the open end.
 
 - `artifacts/case/` contains the main printable case body.
 - `artifacts/text-inlay/` contains the separate flush rear lettering for a second filament color.
-- `renders/tab_a9_golf_case_final.png` is a presentation render showing the front fit and flat text back.
+- `renders/tab-a9-golf-case_final.png` is the standard final project render.
 
 Refresh committed files with:
 

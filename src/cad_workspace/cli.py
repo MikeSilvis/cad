@@ -13,6 +13,7 @@ from cad_workspace.projects import (
     load_project,
     package_project,
 )
+from cad_workspace.render import render_project
 from cad_workspace.registry import discover_models
 
 
@@ -80,6 +81,18 @@ def main() -> None:
     )
     add_cost_arguments(package_parser)
 
+    render_parser = subparsers.add_parser(
+        "render",
+        help="Build the standard final PNG render for a configured project.",
+    )
+    render_parser.add_argument("project", help="Project id, like tab-a9-golf-case")
+    render_parser.add_argument(
+        "--projects-root",
+        type=Path,
+        default=DEFAULT_PROJECTS_ROOT,
+        help="Directory that contains project folders. Defaults to ./projects.",
+    )
+
     args = parser.parse_args()
 
     if args.command == "list":
@@ -106,6 +119,10 @@ def main() -> None:
 
     if args.command == "package":
         package_selected_project(args.project, args.projects_root, cost_settings_from_args(args))
+        return
+
+    if args.command == "render":
+        render_selected_project(args.project, args.projects_root)
         return
 
 
@@ -180,6 +197,19 @@ def package_selected_project(
 
     for path in written:
         print(f"Exported {path}")
+
+
+def render_selected_project(project_id: str, projects_root: Path) -> None:
+    try:
+        project = load_project(project_id, projects_root)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+
+    render_path = render_project(project)
+    if render_path is None:
+        raise SystemExit(f"{project_id} has no artifact PNGs to render")
+
+    print(f"Rendered {render_path}")
 
 
 def build_models(

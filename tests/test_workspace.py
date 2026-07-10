@@ -3,8 +3,10 @@ from cad_workspace.cli import parse_overrides, to_pascal_case
 from cad_workspace.exporter import export_model
 from cad_workspace.model import coerce_value
 from cad_workspace.projects import discover_projects
+from cad_workspace.render import compose_labeled_grid, title_from_slug
 from cad_workspace.registry import discover_models
 from designs.tab_a9_golf_case import TabA9GolfCaseSpec
+from PIL import Image
 
 
 def test_discovers_multiple_models():
@@ -95,6 +97,18 @@ def test_export_model_can_use_project_artifact_names(tmp_path):
 
     assert written == [tmp_path / "printable-spacer" / "spacer-v1.stl"]
     assert written[0].exists()
+
+
+def test_render_helpers_make_standard_project_preview():
+    image = compose_labeled_grid(
+        [
+            ("Case", Image.new("RGB", (100, 60), (20, 80, 140))),
+            ("Text Inlay", Image.new("RGB", (80, 80), (140, 120, 80))),
+        ]
+    )
+
+    assert image.size == (1864, 710)
+    assert title_from_slug("text-inlay") == "Text Inlay"
 
 
 def test_parameter_overrides_are_applied():
