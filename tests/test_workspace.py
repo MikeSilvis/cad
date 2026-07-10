@@ -6,6 +6,7 @@ from cad_workspace.registry import discover_models
 def test_discovers_multiple_models():
     models = discover_models()
 
+    assert "magsafe_desk_holder" in models
     assert "mounting_plate" in models
     assert "spacer" in models
 
@@ -23,6 +24,21 @@ def test_parameter_overrides_are_applied():
 
     assert spec.length == 120
     assert spec.hole_diameter == 4.2
+
+
+def test_magsafe_holder_parameters_are_applied():
+    model = discover_models()["magsafe_desk_holder"]
+    spec = model.spec_with_overrides(
+        {
+            "face_angle_degrees": "28",
+            "puck_clearance": "1.0",
+            "face_drop": "48",
+        }
+    )
+
+    assert spec.face_angle_degrees == 28
+    assert spec.puck_clearance == 1.0
+    assert spec.face_drop == 48
 
 
 def test_cli_override_parser():
