@@ -25,16 +25,16 @@ class TabA9GolfCaseSpec:
     tablet_width: float = 124.7
     tablet_thickness: float = 8.0
     fit_clearance: float = 0.7
-    back_thickness: float = 4.4
+    back_thickness: float = 5.0
     corner_wall_thickness: float = 2.4
-    corner_wall_height: float = 9.8
+    corner_wall_height: float = 10.2
     side_rail_open_gap: float = 22.0
-    front_lip_depth: float = 2.0
-    front_lip_height: float = 1.2
+    front_lip_depth: float = 2.2
+    front_lip_height: float = 1.6
     front_lip_clearance: float = 0.4
     snap_latch_width: float = 20.0
-    snap_latch_thickness: float = 1.2
-    snap_latch_depth: float = 1.6
+    snap_latch_thickness: float = 1.6
+    snap_latch_depth: float = 2.0
     snap_latch_inset_from_side: float = 18.0
     top_mic_cutout_width: float = 14.0
     top_mic_cutout_depth: float = 5.4
@@ -68,7 +68,7 @@ class TabA9GolfCaseSpec:
     bottom_text_font_size: float = 7.5
     top_text_y: float = 40.0
     bottom_text_y: float = -40.0
-    text_inlay_depth: float = 0.45
+    text_inlay_depth: float = 0.6
     text_pocket_overcut: float = 0.15
 
 
