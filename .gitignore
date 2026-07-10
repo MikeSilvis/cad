@@ -1,0 +1,12 @@
+exports/
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+*.stl
+*.3mf
+*.amf
+*.off
+*.step
+*.stp
+*.brep

@@ -1,0 +1,23 @@
+[tools]
+python = "3.12"
+
+[tasks.setup]
+description = "Create the virtualenv and install CAD workspace dependencies."
+run = "python -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install -e '.[dev]'"
+
+[tasks.list]
+description = "List available CAD models and their parameters."
+run = ".venv/bin/cad list"
+
+[tasks.build]
+description = "Build every CAD model into exports/."
+run = ".venv/bin/cad build all"
+
+[tasks.test]
+description = "Run the Python test suite."
+run = ".venv/bin/python -m pytest"
+
+[tasks.validate]
+description = "Run tests and build all CAD exports."
+run = "mise run test && mise run build"
+

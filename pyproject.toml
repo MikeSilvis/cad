@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cad-workspace"
+version = "0.1.0"
+description = "A small Python CAD workspace for AI-assisted 3D modeling."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "build123d==0.11.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+cad = "cad_workspace.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src", "."]
+include = ["cad_workspace*", "designs*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
