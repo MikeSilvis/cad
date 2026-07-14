@@ -25,6 +25,14 @@ run = ".venv/bin/cad package"
 description = "Build the standard final PNG render for a configured project: mise run render -- <project-id>."
 run = ".venv/bin/cad render"
 
+[tasks.inspect]
+description = "Inspect a downloaded STL/STEP file: mise run inspect -- <file>."
+run = ".venv/bin/cad inspect"
+
+[tasks.import]
+description = "Copy a downloaded STL/STEP file into a project as a reference: mise run import -- <file> <project-id>."
+run = ".venv/bin/cad import"
+
 [tasks.test]
 description = "Run the Python test suite."
 run = ".venv/bin/python -m pytest"

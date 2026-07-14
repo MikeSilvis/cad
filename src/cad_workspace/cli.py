@@ -6,6 +6,12 @@ from pathlib import Path
 
 from cad_workspace.cost import CostSettings
 from cad_workspace.exporter import SUPPORTED_FORMATS, export_model
+from cad_workspace.imports import (
+    format_inspection,
+    import_reference_file,
+    inspect_file,
+    render_preview,
+)
 from cad_workspace.model import SpecError
 from cad_workspace.projects import (
     DEFAULT_PROJECTS_ROOT,
@@ -93,6 +99,46 @@ def main() -> None:
         help="Directory that contains project folders. Defaults to ./projects.",
     )
 
+    inspect_parser = subparsers.add_parser(
+        "inspect",
+        help="Inspect a downloaded STL or STEP file: bounding box, volume, solid count.",
+    )
+    inspect_parser.add_argument("file", type=Path, help="Path to an STL or STEP file.")
+    inspect_parser.add_argument(
+        "--preview",
+        type=Path,
+        default=None,
+        help="Write a quick PNG preview of the file to this path.",
+    )
+
+    import_parser = subparsers.add_parser(
+        "import",
+        help="Copy a downloaded STL/STEP file into a project as a reference and inspect it.",
+    )
+    import_parser.add_argument("file", type=Path, help="Path to an STL or STEP file to import.")
+    import_parser.add_argument("project", help="Project id, like my-project")
+    import_parser.add_argument(
+        "--projects-root",
+        type=Path,
+        default=DEFAULT_PROJECTS_ROOT,
+        help="Directory that contains project folders. Defaults to ./projects.",
+    )
+    import_parser.add_argument(
+        "--as-design",
+        dest="as_design",
+        default=None,
+        metavar="NAME",
+        help=(
+            "Scaffold a starter design file (snake_case name) that imports this STEP "
+            "file for further modification. STEP files only."
+        ),
+    )
+    import_parser.add_argument(
+        "--no-preview",
+        action="store_true",
+        help="Skip writing a PNG preview of the imported file.",
+    )
+
     args = parser.parse_args()
 
     if args.command == "list":
@@ -123,6 +169,16 @@ def main() -> None:
 
     if args.command == "render":
         render_selected_project(args.project, args.projects_root)
+        return
+
+    if args.command == "inspect":
+        inspect_selected_file(args.file, args.preview)
+        return
+
+    if args.command == "import":
+        import_reference(
+            args.file, args.project, args.projects_root, args.as_design, args.no_preview
+        )
         return
 
 
@@ -246,24 +302,115 @@ def build_models(
 def create_design(name: str, description: str) -> None:
     validate_design_name(name)
 
-    root = Path.cwd()
-    template_path = root / "templates" / "new_design.py"
-    destination = root / "designs" / f"{name}.py"
+    destination = Path.cwd() / "designs" / f"{name}.py"
+    write_from_template(
+        Path.cwd() / "templates" / "new_design.py",
+        destination,
+        {
+            "NewDesign": to_pascal_case(name),
+            "new_design": name,
+            "Short human description of what this part is for.": description,
+        },
+    )
+    print(f"Created {destination}")
 
+
+def write_from_template(
+    template_path: Path, destination: Path, replacements: dict[str, str]
+) -> None:
     if destination.exists():
         raise SystemExit(f"{destination} already exists")
     if not template_path.exists():
         raise SystemExit(f"Could not find template at {template_path}")
 
-    class_prefix = to_pascal_case(name)
     source = template_path.read_text()
-    source = source.replace("NewDesign", class_prefix)
-    source = source.replace("new_design", name)
-    source = source.replace("Short human description of what this part is for.", description)
+    for old, new in replacements.items():
+        source = source.replace(old, new)
 
-    destination.parent.mkdir(exist_ok=True)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(source)
-    print(f"Created {destination}")
+
+
+def inspect_selected_file(path: Path, preview: Path | None) -> None:
+    if not path.exists():
+        raise SystemExit(f"{path} does not exist")
+
+    try:
+        inspection = inspect_file(path)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+
+    print(format_inspection(inspection))
+
+    if preview is not None:
+        write_preview(path, preview)
+
+
+def import_reference(
+    path: Path,
+    project_id: str,
+    projects_root: Path,
+    as_design: str | None,
+    no_preview: bool,
+) -> None:
+    if not path.exists():
+        raise SystemExit(f"{path} does not exist")
+
+    try:
+        destination = import_reference_file(path, project_id, projects_root)
+        inspection = inspect_file(destination)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+
+    print(f"Copied {path} -> {destination}")
+    print(format_inspection(inspection))
+    if not no_preview:
+        write_preview(destination, destination.with_suffix(".png"))
+
+    if as_design is not None:
+        if inspection.file_format != "step":
+            raise SystemExit(
+                "--as-design only supports STEP files. STL files are meshes with no "
+                "parametric data; use them as a dimensional reference and hand-build a "
+                "new parametric design instead."
+            )
+        design_path = scaffold_imported_design(as_design, project_id, projects_root, destination)
+        print(f"Created {design_path}")
+    elif inspection.file_format == "stl":
+        print(
+            "STL is a mesh with no parametric data. Either commit it as-is under "
+            f"projects/{project_id}/outputs/<artifact-slug>/, or use it as a "
+            "dimensional reference to hand-build a new parametric design in "
+            f"projects/{project_id}/designs/."
+        )
+
+
+def scaffold_imported_design(
+    name: str, project_id: str, projects_root: Path, reference_path: Path
+) -> Path:
+    validate_design_name(name)
+
+    destination = projects_root / project_id / "designs" / f"{name}.py"
+    write_from_template(
+        Path.cwd() / "templates" / "imported_step_design.py",
+        destination,
+        {
+            "NewDesign": to_pascal_case(name),
+            "new_design": name,
+            "REFERENCE_FILENAME": reference_path.name,
+        },
+    )
+    return destination
+
+
+def write_preview(path: Path, preview: Path) -> None:
+    try:
+        render_preview(path, preview)
+    except RuntimeError as error:
+        print(f"Skipped preview: {error}")
+        return
+
+    print(f"Wrote preview {preview}")
 
 
 def parse_overrides(raw_overrides: list[str]) -> dict[str, str]:

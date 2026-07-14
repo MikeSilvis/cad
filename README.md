@@ -140,6 +140,37 @@ Run `mise run package -- my-project` to refresh the committed artifacts.
 Run `mise run render -- my-project` to refresh only the final render from
 existing artifact PNGs.
 
+## Working With Downloaded Files
+
+Bringing in a file downloaded from Thingiverse, Printables, GrabCAD, etc.?
+There's no tool that turns an arbitrary file into parametric code, but there's
+a supported path for each format.
+
+Inspect it first (bounding box, volume, solid count):
+
+```sh
+.venv/bin/cad inspect downloaded_part.step
+.venv/bin/cad inspect downloaded_part.stl --preview preview.png
+```
+
+Copy it into a project as a committed reference file, and, for STEP files,
+scaffold a starter design that imports it for further modification:
+
+```sh
+.venv/bin/cad import downloaded_part.step my-project --as-design my_part
+```
+
+This writes `projects/my-project/reference/downloaded_part.step`, a preview
+PNG next to it, and (with `--as-design`) `projects/my-project/designs/my_part.py`
+with a `build()` that calls build123d's `import_step()` on the reference file —
+edit it to add holes, trims, or other boolean modifications.
+
+STL files are meshes with no feature history, so `--as-design` only works for
+STEP. For an STL-only download, either commit it as-is under
+`projects/my-project/outputs/<artifact-slug>/` if it just needs to be printed,
+or use `cad inspect`'s dimensions as a reference to hand-build a fresh
+parametric design.
+
 ## Useful Prompts
 
 Ask Codex things like:

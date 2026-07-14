@@ -11,6 +11,7 @@ projects/<project-id>/
   project.toml
   README.md
   designs/<model-name>.py
+  reference/<downloaded-file>.step   # optional: downloaded source files
   outputs/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
@@ -32,6 +33,11 @@ projects/<project-id>/
   costs, and the standard final render are refreshed together.
 - Run `mise run render -- <project-id>` when only the final PNG needs to be
   rebuilt from existing artifact previews.
+- For files downloaded from the internet, use `cad inspect <file>` to check
+  bounding box/volume, then `cad import <file> <project-id> --as-design <name>`
+  to bring a STEP file in as a committed reference and scaffold a modifiable
+  design. STL references have no parametric data; see CLAUDE.md's "Working With
+  Downloaded Files" section for the full guidance.
 
 ## Standard Commands
 

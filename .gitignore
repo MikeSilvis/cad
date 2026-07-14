@@ -15,3 +15,6 @@ __pycache__/
 !projects/**/outputs/**/*.stl
 !projects/**/outputs/**/*.step
 !projects/**/outputs/**/*.stp
+!projects/**/reference/**/*.stl
+!projects/**/reference/**/*.step
+!projects/**/reference/**/*.stp
