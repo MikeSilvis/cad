@@ -38,6 +38,8 @@ Useful direct CLI commands:
 .venv/bin/cad render my-project
 .venv/bin/cad build mounting_plate --set length=120 --set hole_spacing=90
 .venv/bin/cad new phone_stand --description "Angled phone stand with charging slot."
+.venv/bin/cad inspect downloaded_part.step
+.venv/bin/cad import downloaded_part.step my-project --as-design my_part
 ```
 
 ## Adding A Shared Design
@@ -73,6 +75,7 @@ projects/<project-id>/
   project.toml
   README.md
   designs/<model-name>.py
+  reference/<downloaded-file>.step   # optional: downloaded source files
   outputs/<artifact-slug>/
     <artifact-slug>.stl
     <artifact-slug>.step
@@ -108,6 +111,49 @@ Run `mise run package -- <project-id>` after changing a printable project. This
 refreshes committed STL/STEP/PNG files, cost estimates, and the standard final
 render. Use `mise run render -- <project-id>` when only the summary PNG needs to
 be regenerated from existing artifact PNGs.
+
+## Working With Downloaded Files
+
+Users sometimes bring a file already downloaded from the internet (Thingiverse,
+Printables, GrabCAD, a manufacturer's site) instead of describing a part from
+scratch. There is no tool that turns an arbitrary file into clean parametric
+code; what's possible depends on the format:
+
+- **STEP (`.step`/`.stp`)** is a real BREP solid. It can be imported and
+  modified with boolean ops, fillets, and holes.
+- **STL** is a mesh with no feature history. Treat it as either a final
+  printable artifact to use as-is, or a dimensional reference for hand-building
+  a fresh parametric design.
+
+Inspect any downloaded file before deciding how to use it:
+
+```sh
+.venv/bin/cad inspect downloaded_part.step
+.venv/bin/cad inspect downloaded_part.stl --preview preview.png
+```
+
+Bring the file into a project as a committed reference, alongside the project's
+manifest and README, under `projects/<project-id>/reference/`:
+
+```sh
+.venv/bin/cad import downloaded_part.step my-project --as-design my_part
+```
+
+`--as-design` (STEP only) scaffolds `projects/<project-id>/designs/<name>.py`
+with a `build()` that calls `import_step()` on the reference file. Add spec
+fields and boolean ops on top of the imported solid for whatever the user wants
+changed. `cad import` always writes a quick PNG preview next to the reference
+file (skip with `--no-preview`).
+
+For an STL-only reference, there is no automatic conversion path. Use
+`cad inspect` (and the preview PNG, or a viewer) to read off real dimensions,
+then hand-build a normal parametric design under `projects/<project-id>/designs/`
+that reproduces those dimensions as spec fields, per the usual "Adding A Shared
+Design" workflow.
+
+If the user just wants the downloaded file printed as-is with no modification,
+skip designs entirely and place it directly as a committed artifact under
+`projects/<project-id>/outputs/<artifact-slug>/`.
 
 ## Validation
 

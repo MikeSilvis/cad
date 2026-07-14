@@ -1,10 +1,13 @@
+from build123d import Box, BuildPart, export_step, export_stl
+
 from cad_workspace.cost import CostSettings, estimate_cost
-from cad_workspace.cli import parse_overrides, to_pascal_case
+from cad_workspace.cli import parse_overrides, scaffold_imported_design, to_pascal_case
 from cad_workspace.exporter import export_model
+from cad_workspace.imports import format_inspection, import_reference_file, inspect_file
 from cad_workspace.model import coerce_value
 from cad_workspace.projects import Project, ProjectArtifact, discover_projects
 from cad_workspace.render import compose_labeled_grid, render_project, title_from_slug
-from cad_workspace.registry import discover_models
+from cad_workspace.registry import discover_models, import_module_from_path
 from PIL import Image
 
 
@@ -233,3 +236,91 @@ def test_boolean_coercion():
 
 def test_pascal_case_design_name():
     assert to_pascal_case("phone_stand") == "PhoneStand"
+
+
+def _write_sample_box(tmp_path, suffix):
+    with BuildPart() as part:
+        Box(40, 20, 8)
+
+    path = tmp_path / f"box{suffix}"
+    if suffix == ".stl":
+        export_stl(part.part, path)
+    else:
+        export_step(part.part, path)
+    return path
+
+
+def test_inspect_file_reports_step_bounding_box_and_volume(tmp_path):
+    step_path = _write_sample_box(tmp_path, ".step")
+
+    inspection = inspect_file(step_path)
+
+    assert inspection.file_format == "step"
+    assert inspection.size_x_mm == 40
+    assert inspection.size_y_mm == 20
+    assert inspection.size_z_mm == 8
+    assert inspection.solid_count == 1
+    assert round(inspection.volume_mm3) == 6400
+    assert "volume:" in format_inspection(inspection)
+
+
+def test_inspect_file_reports_stl_bounding_box_without_volume(tmp_path):
+    stl_path = _write_sample_box(tmp_path, ".stl")
+
+    inspection = inspect_file(stl_path)
+
+    assert inspection.file_format == "stl"
+    assert round(inspection.size_x_mm) == 40
+    assert inspection.volume_mm3 is None
+    assert inspection.solid_count is None
+    assert "mesh reference" in format_inspection(inspection)
+
+
+def test_inspect_file_rejects_unsupported_format(tmp_path):
+    bad_path = tmp_path / "model.obj"
+    bad_path.write_text("not a real model")
+
+    try:
+        inspect_file(bad_path)
+        assert False, "expected ValueError"
+    except ValueError as error:
+        assert "Unsupported file format" in str(error)
+
+
+def test_import_reference_file_copies_into_project_reference_dir(tmp_path):
+    step_path = _write_sample_box(tmp_path, ".step")
+    (tmp_path / "widget-project").mkdir()
+
+    destination = import_reference_file(step_path, "widget-project", tmp_path)
+
+    assert destination == tmp_path / "widget-project" / "reference" / "box.step"
+    assert destination.exists()
+
+
+def test_import_reference_file_rejects_unknown_project(tmp_path):
+    step_path = _write_sample_box(tmp_path, ".step")
+
+    try:
+        import_reference_file(step_path, "missing-project", tmp_path)
+        assert False, "expected ValueError"
+    except ValueError as error:
+        assert "Unknown project" in str(error)
+
+
+def test_scaffold_imported_design_produces_buildable_model(tmp_path):
+    step_path = _write_sample_box(tmp_path, ".step")
+    (tmp_path / "widget-project").mkdir()
+    reference_path = import_reference_file(step_path, "widget-project", tmp_path)
+
+    design_path = scaffold_imported_design(
+        "widget_body", "widget-project", tmp_path, reference_path
+    )
+
+    assert "widget_body" in design_path.read_text()
+    assert "box.step" in design_path.read_text()
+    assert "class WidgetBodySpec" in design_path.read_text()
+
+    module = import_module_from_path("test_widget_body_module", design_path)
+    built = module.MODEL.build(module.MODEL.default_spec())
+
+    assert built.volume > 0
