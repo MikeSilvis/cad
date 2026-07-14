@@ -22,7 +22,7 @@ class TabA9GolfCaseSpec:
     """All dimensions are millimeters."""
 
     tablet_length: float = 211.0
-    tablet_width: float = 124.7
+    tablet_width: float = 125.7
     tablet_thickness: float = 8.0
     fit_clearance: float = 0.7
     back_thickness: float = 5.0
@@ -36,8 +36,8 @@ class TabA9GolfCaseSpec:
     snap_latch_thickness: float = 1.6
     snap_latch_depth: float = 2.0
     snap_latch_inset_from_side: float = 18.0
-    side_button_cutout_length: float = 58.0
-    side_button_cutout_depth: float = 8.0
+    side_button_cutout_length: float = 66.0
+    side_button_cutout_depth: float = 10.0
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 55.0
     bottom_left_retainer_usb_c_clearance_width: float = 34.0
