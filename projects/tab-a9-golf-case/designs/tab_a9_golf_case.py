@@ -36,10 +36,10 @@ class TabA9GolfCaseSpec:
     snap_latch_thickness: float = 1.6
     snap_latch_depth: float = 2.0
     snap_latch_inset_from_side: float = 18.0
-    side_button_cutout_length: float = 66.0
-    side_button_cutout_depth: float = 10.0
+    side_button_cutout_length: float = 58.0
+    side_button_cutout_depth: float = 8.0
     side_button_cutout_height: float = 10.8
-    side_button_cutout_center_from_top: float = 55.0
+    side_button_cutout_center_from_top: float = 67.7
     bottom_left_retainer_usb_c_clearance_width: float = 34.0
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
