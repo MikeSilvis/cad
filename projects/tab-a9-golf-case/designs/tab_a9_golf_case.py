@@ -40,7 +40,7 @@ class TabA9GolfCaseSpec:
     side_button_cutout_depth: float = 8.0
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 67.7
-    bottom_left_retainer_usb_c_clearance_width: float = 34.0
+    bottom_left_retainer_usb_c_clearance_width: float = 59.4
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
     bottom_speaker_cutout_height: float = 10.8
@@ -55,8 +55,8 @@ class TabA9GolfCaseSpec:
     magnet_columns: int = 2
     magnet_gap: float = 8.0
     outside_corner_radius: float = 7.5
-    rail_end_radius: float = 0.9
-    snap_tab_radius: float = 0.45
+    rail_end_radius: float = 7.5
+    snap_tab_radius: float = 7.5
     include_text: bool = True
     top_text: str = "Silly"
     bottom_text: str = "(814) 574-6139"
