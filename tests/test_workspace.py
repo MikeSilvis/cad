@@ -71,8 +71,8 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     assert spec.top_text == "Silly"
     assert spec.bottom_text == "(814) 574-6139"
     assert spec.side_button_cutout_depth > spec.corner_wall_thickness + spec.front_lip_depth
-    assert spec.bottom_left_retainer_usb_c_clearance_width > 0
-    assert spec.bottom_left_retainer_usb_c_clearance_width < spec.tablet_width
+    assert spec.bottom_left_retainer_height > 0
+    assert spec.bottom_left_retainer_height < spec.tablet_width / 2
     assert spec.bottom_speaker_cutout_width > spec.snap_latch_width
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width

@@ -22,7 +22,7 @@ class TabA9GolfCaseSpec:
     """All dimensions are millimeters."""
 
     tablet_length: float = 211.0
-    tablet_width: float = 124.7
+    tablet_width: float = 125.7
     tablet_thickness: float = 8.0
     fit_clearance: float = 0.7
     back_thickness: float = 5.0
@@ -39,8 +39,8 @@ class TabA9GolfCaseSpec:
     side_button_cutout_length: float = 58.0
     side_button_cutout_depth: float = 8.0
     side_button_cutout_height: float = 10.8
-    side_button_cutout_center_from_top: float = 55.0
-    bottom_left_retainer_usb_c_clearance_width: float = 34.0
+    side_button_cutout_center_from_top: float = 67.7
+    bottom_left_retainer_height: float = 10.0
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
     bottom_speaker_cutout_height: float = 10.8
@@ -55,8 +55,8 @@ class TabA9GolfCaseSpec:
     magnet_columns: int = 2
     magnet_gap: float = 8.0
     outside_corner_radius: float = 7.5
-    rail_end_radius: float = 0.9
-    snap_tab_radius: float = 0.45
+    rail_end_radius: float = 7.5
+    snap_tab_radius: float = 7.5
     include_text: bool = True
     top_text: str = "Silly"
     bottom_text: str = "(814) 574-6139"
@@ -217,7 +217,7 @@ def add_bottom_left_retainer(
     corner_z: float,
     lip_z: float,
 ) -> None:
-    retainer_width = inner_width / 2 - spec.bottom_left_retainer_usb_c_clearance_width / 2
+    retainer_width = spec.bottom_left_retainer_height
     retainer_y = -inner_width / 2 + retainer_width / 2
     wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
     lip_x = inner_length / 2 - spec.snap_latch_depth / 2
@@ -381,10 +381,10 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("side_rail_open_gap must leave room for the snap latches to flex")
     if spec.side_button_cutout_length <= 0 or spec.side_button_cutout_depth <= 0:
         raise ValueError("side button cutout dimensions must be positive")
-    if spec.bottom_left_retainer_usb_c_clearance_width <= 0:
-        raise ValueError("bottom-left retainer USB-C clearance must be positive")
-    if spec.bottom_left_retainer_usb_c_clearance_width >= spec.tablet_width:
-        raise ValueError("bottom-left retainer USB-C clearance must fit within the tablet width")
+    if spec.bottom_left_retainer_height <= 0:
+        raise ValueError("bottom-left retainer height must be positive")
+    if spec.bottom_left_retainer_height >= spec.tablet_width / 2:
+        raise ValueError("bottom-left retainer height must stay below the tablet centerline")
     if spec.bottom_speaker_cutout_width <= 0 or spec.bottom_speaker_cutout_depth <= 0:
         raise ValueError("bottom speaker cutout dimensions must be positive")
     if spec.bottom_speaker_cutout_center_from_right <= spec.bottom_speaker_cutout_width / 2:
