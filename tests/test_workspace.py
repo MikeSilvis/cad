@@ -1,3 +1,5 @@
+from math import sqrt
+
 from build123d import Box, BuildPart, export_step, export_stl
 
 from cad_workspace.cost import CostSettings, estimate_cost
@@ -66,16 +68,15 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     assert type(spec).__name__ == "TabA9GolfCaseSpec"
     assert spec.magnet_rows * spec.magnet_columns == 6
     assert spec.back_thickness - spec.magnet_pocket_depth >= 1.5
-    assert spec.side_rail_open_gap > spec.snap_latch_thickness
     assert spec.include_text is True
     assert spec.top_text == "Silly"
     assert spec.bottom_text == "(814) 574-6139"
     assert spec.side_button_cutout_depth > spec.corner_wall_thickness + spec.front_lip_depth
-    assert spec.bottom_left_retainer_height > 0
-    assert spec.bottom_left_retainer_height < spec.tablet_width / 2
-    assert spec.bottom_speaker_cutout_width > spec.snap_latch_width
+    assert spec.bottom_left_stop_width > 0
+    assert spec.bottom_left_stop_width < spec.tablet_width / 2
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width
+    assert len(part.solids()) == 1
 
     inner_length = spec.tablet_length + 2 * spec.fit_clearance
     inner_width = spec.tablet_width + 2 * spec.fit_clearance
@@ -96,22 +97,42 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
         0,
         lip_center_z,
     )
-    bottom_stop_width = spec.bottom_left_retainer_height + spec.snap_latch_width
+    outer_length = inner_length + 2 * spec.corner_wall_thickness
+    outer_width = inner_width + 2 * spec.corner_wall_thickness
+    inner_corner_radius = spec.outside_corner_radius - spec.corner_wall_thickness
     bottom_stop_center = (
-        inner_length / 2 + spec.snap_latch_thickness / 2,
-        -inner_width / 2 + bottom_stop_width / 2,
+        inner_length / 2 + spec.corner_wall_thickness / 2,
+        -outer_width / 2
+        + (spec.corner_wall_thickness + spec.bottom_left_stop_width) / 2,
         wall_center_z,
     )
-    former_joint_y = -inner_width / 2 + spec.bottom_left_retainer_height
-    wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
-    lip_x = inner_length / 2 - spec.snap_latch_depth / 2
+    rail_to_bottom_connection = (
+        inner_length / 2 - 5,
+        -inner_width / 2 - spec.corner_wall_thickness / 2,
+        wall_center_z,
+    )
+    corner_center_x = outer_length / 2 - spec.outside_corner_radius
+    corner_center_y = -outer_width / 2 + spec.outside_corner_radius
+
+    def corner_point(radius: float, z: float) -> tuple[float, float, float]:
+        return (
+            corner_center_x + radius / sqrt(2),
+            corner_center_y - radius / sqrt(2),
+            z,
+        )
 
     assert not part.is_inside(top_wall_center)
     assert not part.is_inside(top_lip_center)
     assert part.is_inside(bottom_stop_center)
-    for x_offset in (-0.6, 0, 0.6):
-        assert part.is_inside((wall_x + x_offset, former_joint_y, wall_center_z))
-        assert part.is_inside((lip_x + x_offset, former_joint_y, lip_center_z))
+    assert part.is_inside(rail_to_bottom_connection)
+    assert not part.is_inside(corner_point(inner_corner_radius - 0.2, wall_center_z))
+    assert part.is_inside(
+        corner_point((inner_corner_radius + spec.outside_corner_radius) / 2, wall_center_z)
+    )
+    assert not part.is_inside(corner_point(spec.outside_corner_radius + 0.2, wall_center_z))
+    assert part.is_inside(
+        corner_point(inner_corner_radius - spec.front_lip_depth / 2, lip_center_z)
+    )
 
 
 def test_tab_a9_text_can_be_disabled_from_same_model():
