@@ -104,7 +104,7 @@ def build(spec: TabA9GolfCaseSpec):
             )
         )
 
-        add_slide_in_retention(spec, inner_length, inner_width, corner_z, lip_z)
+        add_top_load_retention(spec, inner_length, inner_width, corner_z, lip_z)
         cut_device_controls(spec, inner_length, inner_width, back_top_z)
         cut_magnet_pockets(spec, pocket_length, pocket_width, pocket_cut_depth, pocket_z)
         if has_text(spec):
@@ -122,7 +122,7 @@ def build_text_inlay(spec: TabA9GolfCaseSpec):
     return text_features_part(spec, spec.text_inlay_depth, bottom_z_offset=0)
 
 
-def add_slide_in_retention(
+def add_top_load_retention(
     spec: TabA9GolfCaseSpec,
     inner_length: float,
     inner_width: float,
@@ -157,29 +157,7 @@ def add_slide_in_retention(
             )
         )
 
-    closed_x = -inner_length / 2 - wall / 2
-    add(
-        rounded_box_xy(
-            wall,
-            inner_width + 2 * wall,
-            spec.corner_wall_height,
-            center=(closed_x, 0, corner_z),
-            radius=spec.rail_end_radius,
-        )
-    )
-
-    closed_lip_x = -inner_length / 2 + spec.front_lip_depth / 2
-    add(
-        rounded_box_xy(
-            spec.front_lip_depth,
-            inner_width,
-            spec.front_lip_height,
-            center=(closed_lip_x, 0, lip_z),
-            radius=spec.rail_end_radius,
-        )
-    )
-
-    # Screwless snap catches: thin upright tabs at the open end block slide-out.
+    # The lower tabs support the tablet after it slides into the open top.
     for y_sign in (-1, 1):
         y_latch = y_sign * (
             inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2
@@ -404,7 +382,7 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
 
 MODEL = CadModel(
     name="tab_a9_golf_case",
-    description="Galaxy Tab A9 golf-cart case with recessed bar-magnet pockets.",
+    description="Top-loading Galaxy Tab A9 golf-cart case with recessed magnet pockets.",
     spec_type=TabA9GolfCaseSpec,
     build=build,
 )

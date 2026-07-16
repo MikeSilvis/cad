@@ -77,6 +77,32 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width
 
+    inner_length = spec.tablet_length + 2 * spec.fit_clearance
+    inner_width = spec.tablet_width + 2 * spec.fit_clearance
+    wall_center_z = spec.back_thickness / 2 + spec.corner_wall_height / 2
+    top_wall_center = (
+        -inner_length / 2 - spec.corner_wall_thickness / 2,
+        0,
+        wall_center_z,
+    )
+    top_lip_center = (
+        -inner_length / 2 + spec.front_lip_depth / 2,
+        0,
+        spec.back_thickness / 2
+        + spec.tablet_thickness
+        + spec.front_lip_clearance
+        + spec.front_lip_height / 2,
+    )
+    bottom_stop_center = (
+        inner_length / 2 + spec.snap_latch_thickness / 2,
+        -(inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2),
+        wall_center_z,
+    )
+
+    assert not part.is_inside(top_wall_center)
+    assert not part.is_inside(top_lip_center)
+    assert part.is_inside(bottom_stop_center)
+
 
 def test_tab_a9_text_can_be_disabled_from_same_model():
     case_model = discover_models()["tab_a9_golf_case"]

@@ -1,10 +1,11 @@
 # Samsung Galaxy Tab A9 Golf Case
 
 Magnetic case for the Samsung Galaxy Tab A9 8.7-inch tablet. The case body uses
-recessed pockets for six adhesive-backed bar magnets, slide-in side retention,
-and screwless snap catches at the open end. The default case includes a clean
-right-side power/volume button relief, a bottom-right speaker relief, and a longer
-bottom-left retainer that stops before the USB-C area.
+recessed pockets for six adhesive-backed bar magnets and an open top so the tablet
+slides down between the side rails. Gravity seats it against the lower retaining
+tabs. The default case includes a clean right-side power/volume button relief, a
+bottom-right speaker relief, and a short bottom-left retainer that stops before
+the USB-C area.
 
 ## Artifacts
 
