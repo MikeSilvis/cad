@@ -159,8 +159,13 @@ def add_top_load_retention(
 
     # The lower tabs support the tablet after it slides into the open top.
     for y_sign in (-1, 1):
+        latch_inset_from_side = (
+            spec.bottom_left_retainer_height
+            if y_sign == -1
+            else spec.snap_latch_inset_from_side
+        )
         y_latch = y_sign * (
-            inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2
+            inner_width / 2 - latch_inset_from_side - spec.snap_latch_width / 2
         )
         latch_wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
         latch_lip_x = inner_length / 2 - spec.snap_latch_depth / 2

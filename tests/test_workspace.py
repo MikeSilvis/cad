@@ -98,10 +98,16 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
         -(inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2),
         wall_center_z,
     )
+    joined_stop_center = (
+        inner_length / 2 + spec.snap_latch_thickness / 2,
+        -inner_width / 2 + spec.bottom_left_retainer_height + 1,
+        wall_center_z,
+    )
 
     assert not part.is_inside(top_wall_center)
     assert not part.is_inside(top_lip_center)
     assert part.is_inside(bottom_stop_center)
+    assert part.is_inside(joined_stop_center)
 
 
 def test_tab_a9_text_can_be_disabled_from_same_model():
