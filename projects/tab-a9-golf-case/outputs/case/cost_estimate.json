@@ -1,10 +1,10 @@
 {
   "model_name": "tab_a9_golf_case",
-  "volume_mm3": 140335.5251298927,
-  "volume_cm3": 140.3355251298927,
-  "solid_mass_g": 178.2261169149637,
-  "estimated_material_g": 199.6132509447594,
-  "estimated_cost_usd": 4.790718022674225,
+  "volume_mm3": 140342.0875221018,
+  "volume_cm3": 140.3420875221018,
+  "solid_mass_g": 178.23445115306927,
+  "estimated_material_g": 199.62258529143762,
+  "estimated_cost_usd": 4.790942046994503,
   "settings": {
     "filament_density_g_cm3": 1.27,
     "filament_cost_per_kg": 24.0,

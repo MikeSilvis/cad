@@ -80,6 +80,12 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     inner_length = spec.tablet_length + 2 * spec.fit_clearance
     inner_width = spec.tablet_width + 2 * spec.fit_clearance
     wall_center_z = spec.back_thickness / 2 + spec.corner_wall_height / 2
+    lip_center_z = (
+        spec.back_thickness / 2
+        + spec.tablet_thickness
+        + spec.front_lip_clearance
+        + spec.front_lip_height / 2
+    )
     top_wall_center = (
         -inner_length / 2 - spec.corner_wall_thickness / 2,
         0,
@@ -88,26 +94,24 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     top_lip_center = (
         -inner_length / 2 + spec.front_lip_depth / 2,
         0,
-        spec.back_thickness / 2
-        + spec.tablet_thickness
-        + spec.front_lip_clearance
-        + spec.front_lip_height / 2,
+        lip_center_z,
     )
+    bottom_stop_width = spec.bottom_left_retainer_height + spec.snap_latch_width
     bottom_stop_center = (
         inner_length / 2 + spec.snap_latch_thickness / 2,
-        -(inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2),
+        -inner_width / 2 + bottom_stop_width / 2,
         wall_center_z,
     )
-    joined_stop_center = (
-        inner_length / 2 + spec.snap_latch_thickness / 2,
-        -inner_width / 2 + spec.bottom_left_retainer_height + 1,
-        wall_center_z,
-    )
+    former_joint_y = -inner_width / 2 + spec.bottom_left_retainer_height
+    wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
+    lip_x = inner_length / 2 - spec.snap_latch_depth / 2
 
     assert not part.is_inside(top_wall_center)
     assert not part.is_inside(top_lip_center)
     assert part.is_inside(bottom_stop_center)
-    assert part.is_inside(joined_stop_center)
+    for x_offset in (-0.6, 0, 0.6):
+        assert part.is_inside((wall_x + x_offset, former_joint_y, wall_center_z))
+        assert part.is_inside((lip_x + x_offset, former_joint_y, lip_center_z))
 
 
 def test_tab_a9_text_can_be_disabled_from_same_model():

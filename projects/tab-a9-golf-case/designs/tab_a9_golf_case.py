@@ -157,38 +157,32 @@ def add_top_load_retention(
             )
         )
 
-    # The lower tabs support the tablet after it slides into the open top.
-    for y_sign in (-1, 1):
-        latch_inset_from_side = (
-            spec.bottom_left_retainer_height
-            if y_sign == -1
-            else spec.snap_latch_inset_from_side
-        )
-        y_latch = y_sign * (
-            inner_width / 2 - latch_inset_from_side - spec.snap_latch_width / 2
-        )
-        latch_wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
-        latch_lip_x = inner_length / 2 - spec.snap_latch_depth / 2
+    # The speaker-side tab is shaped by the control cutout below.
+    latch_y = (
+        inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2
+    )
+    latch_wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
+    latch_lip_x = inner_length / 2 - spec.snap_latch_depth / 2
 
-        add(
-            rounded_box_xy(
-                spec.snap_latch_thickness,
-                spec.snap_latch_width,
-                spec.corner_wall_height,
-                center=(latch_wall_x, y_latch, corner_z),
-                radius=spec.snap_tab_radius,
-            )
+    add(
+        rounded_box_xy(
+            spec.snap_latch_thickness,
+            spec.snap_latch_width,
+            spec.corner_wall_height,
+            center=(latch_wall_x, latch_y, corner_z),
+            radius=spec.snap_tab_radius,
         )
+    )
 
-        add(
-            rounded_box_xy(
-                spec.snap_latch_depth,
-                spec.snap_latch_width,
-                spec.front_lip_height,
-                center=(latch_lip_x, y_latch, lip_z),
-                radius=spec.snap_tab_radius,
-            )
+    add(
+        rounded_box_xy(
+            spec.snap_latch_depth,
+            spec.snap_latch_width,
+            spec.front_lip_height,
+            center=(latch_lip_x, latch_y, lip_z),
+            radius=spec.snap_tab_radius,
         )
+    )
 
     add_bottom_left_retainer(spec, inner_length, inner_width, corner_z, lip_z)
 
@@ -200,7 +194,7 @@ def add_bottom_left_retainer(
     corner_z: float,
     lip_z: float,
 ) -> None:
-    retainer_width = spec.bottom_left_retainer_height
+    retainer_width = spec.bottom_left_retainer_height + spec.snap_latch_width
     retainer_y = -inner_width / 2 + retainer_width / 2
     wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
     lip_x = inner_length / 2 - spec.snap_latch_depth / 2
