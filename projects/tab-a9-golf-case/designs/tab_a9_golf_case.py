@@ -37,6 +37,7 @@ class TabA9GolfCaseSpec:
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 67.7
     bottom_left_stop_width: float = 30.0
+    bottom_right_wrap_extension: float = 8.0
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
     bottom_speaker_cutout_height: float = 10.8
@@ -139,6 +140,7 @@ def add_top_load_retention(
             center_z=corner_z - spec.retention_base_overlap / 2,
             outer_radius=spec.outside_corner_radius,
             bottom_stop_span=wall + spec.bottom_left_stop_width,
+            bottom_right_extension=spec.bottom_right_wrap_extension,
         )
     )
 
@@ -152,6 +154,7 @@ def add_top_load_retention(
             center_z=lip_z,
             outer_radius=inner_corner_radius,
             bottom_stop_span=spec.bottom_left_stop_width,
+            bottom_right_extension=spec.bottom_right_wrap_extension,
         )
     )
 
@@ -288,6 +291,7 @@ def open_perimeter_frame_xy(
     center_z: float,
     outer_radius: float,
     bottom_stop_span: float,
+    bottom_right_extension: float,
 ):
     frame_thickness = (outer_length - inner_length) / 2
     inner_radius = outer_radius - frame_thickness
@@ -329,7 +333,22 @@ def open_perimeter_frame_xy(
             center_z,
         )
     )
-    retention_mask = negative_side_mask + positive_side_mask + bottom_stop_mask
+    bottom_right_span = outer_radius + bottom_right_extension
+    bottom_right_mask = Box(
+        bottom_mask_length,
+        bottom_right_span + 2,
+        mask_height,
+        mode=Mode.PRIVATE,
+    ).translate(
+        (
+            bottom_mask_center_x,
+            outer_width / 2 - bottom_right_span / 2,
+            center_z,
+        )
+    )
+    retention_mask = (
+        negative_side_mask + positive_side_mask + bottom_stop_mask + bottom_right_mask
+    )
 
     return frame.part & retention_mask
 
@@ -352,6 +371,18 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("bottom-left stop width must be positive")
     if spec.bottom_left_stop_width >= spec.tablet_width / 2:
         raise ValueError("bottom-left stop width must stay below the tablet centerline")
+    if spec.bottom_right_wrap_extension < 0:
+        raise ValueError("bottom-right wrap extension cannot be negative")
+    inner_width = spec.tablet_width + 2 * spec.fit_clearance
+    bottom_left_end = -inner_width / 2 + spec.bottom_left_stop_width
+    bottom_right_start = (
+        inner_width / 2
+        + spec.corner_wall_thickness
+        - spec.outside_corner_radius
+        - spec.bottom_right_wrap_extension
+    )
+    if bottom_left_end >= bottom_right_start:
+        raise ValueError("bottom stops must leave an opening between them")
     if spec.bottom_speaker_cutout_width <= 0 or spec.bottom_speaker_cutout_depth <= 0:
         raise ValueError("bottom speaker cutout dimensions must be positive")
     if spec.bottom_speaker_cutout_center_from_right <= spec.bottom_speaker_cutout_width / 2:

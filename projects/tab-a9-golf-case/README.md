@@ -5,7 +5,8 @@ recessed pockets for six adhesive-backed bar magnets and an open top so the tabl
 slides down between the side rails. Gravity seats it against the lower retaining
 tabs. The default case includes a clean right-side power/volume button relief, a
 bottom-right speaker relief, and a continuous bottom-left retainer that stops before
-the USB-C area. The rails and lower stop share one continuous rounded corner.
+the USB-C area. The rails and lower stop share one continuous rounded corner, with
+a short return around the speaker-side corner.
 
 ## Artifacts
 

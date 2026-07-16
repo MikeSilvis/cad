@@ -74,6 +74,7 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     assert spec.side_button_cutout_depth > spec.corner_wall_thickness + spec.front_lip_depth
     assert spec.bottom_left_stop_width > 0
     assert spec.bottom_left_stop_width < spec.tablet_width / 2
+    assert spec.bottom_right_wrap_extension > 0
     assert part.bounding_box().size.X > spec.tablet_length
     assert part.bounding_box().size.Y > spec.tablet_width
     assert len(part.solids()) == 1
@@ -113,6 +114,10 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     )
     corner_center_x = outer_length / 2 - spec.outside_corner_radius
     corner_center_y = -outer_width / 2 + spec.outside_corner_radius
+    bottom_wall_x = inner_length / 2 + spec.corner_wall_thickness / 2
+    bottom_lip_x = inner_length / 2 - spec.front_lip_depth / 2
+    bottom_right_wrap_y = corner_center_y - spec.bottom_right_wrap_extension / 2
+    speaker_y = inner_width / 2 - spec.bottom_speaker_cutout_center_from_right
 
     def corner_point(radius: float, z: float) -> tuple[float, float, float]:
         return (
@@ -133,6 +138,9 @@ def test_tab_a9_golf_case_defaults_match_printable_layout():
     assert part.is_inside(
         corner_point(inner_corner_radius - spec.front_lip_depth / 2, lip_center_z)
     )
+    assert part.is_inside((bottom_wall_x, bottom_right_wrap_y, wall_center_z))
+    assert part.is_inside((bottom_lip_x, bottom_right_wrap_y, lip_center_z))
+    assert not part.is_inside((bottom_wall_x, speaker_y, wall_center_z))
 
 
 def test_tab_a9_text_can_be_disabled_from_same_model():
