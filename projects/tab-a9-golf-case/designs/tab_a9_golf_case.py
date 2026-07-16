@@ -28,19 +28,16 @@ class TabA9GolfCaseSpec:
     back_thickness: float = 5.0
     corner_wall_thickness: float = 2.4
     corner_wall_height: float = 10.2
-    side_rail_open_gap: float = 22.0
+    retention_base_overlap: float = 0.2
     front_lip_depth: float = 2.2
     front_lip_height: float = 1.6
     front_lip_clearance: float = 0.4
-    snap_latch_width: float = 20.0
-    snap_latch_thickness: float = 1.6
-    snap_latch_depth: float = 2.0
-    snap_latch_inset_from_side: float = 18.0
     side_button_cutout_length: float = 58.0
     side_button_cutout_depth: float = 8.0
     side_button_cutout_height: float = 10.8
     side_button_cutout_center_from_top: float = 67.7
-    bottom_left_retainer_height: float = 10.0
+    bottom_left_stop_width: float = 30.0
+    bottom_right_wrap_extension: float = 8.0
     bottom_speaker_cutout_width: float = 36.0
     bottom_speaker_cutout_depth: float = 7.0
     bottom_speaker_cutout_height: float = 10.8
@@ -56,7 +53,6 @@ class TabA9GolfCaseSpec:
     magnet_gap: float = 8.0
     outside_corner_radius: float = 7.5
     rail_end_radius: float = 7.5
-    snap_tab_radius: float = 7.5
     include_text: bool = True
     top_text: str = "Silly"
     bottom_text: str = "(814) 574-6139"
@@ -104,7 +100,7 @@ def build(spec: TabA9GolfCaseSpec):
             )
         )
 
-        add_slide_in_retention(spec, inner_length, inner_width, corner_z, lip_z)
+        add_top_load_retention(spec, inner_length, inner_width, corner_z, lip_z)
         cut_device_controls(spec, inner_length, inner_width, back_top_z)
         cut_magnet_pockets(spec, pocket_length, pocket_width, pocket_cut_depth, pocket_z)
         if has_text(spec):
@@ -122,7 +118,7 @@ def build_text_inlay(spec: TabA9GolfCaseSpec):
     return text_features_part(spec, spec.text_inlay_depth, bottom_z_offset=0)
 
 
-def add_slide_in_retention(
+def add_top_load_retention(
     spec: TabA9GolfCaseSpec,
     inner_length: float,
     inner_width: float,
@@ -130,115 +126,35 @@ def add_slide_in_retention(
     lip_z: float,
 ) -> None:
     wall = spec.corner_wall_thickness
-    rail_length = inner_length - spec.side_rail_open_gap
-    rail_center_x = -inner_length / 2 + rail_length / 2
+    outer_length = inner_length + 2 * wall
+    outer_width = inner_width + 2 * wall
+    inner_corner_radius = spec.outside_corner_radius - wall
 
-    for y_sign in (-1, 1):
-        y_wall = y_sign * (inner_width / 2 + wall / 2)
-        y_lip = y_sign * (inner_width / 2 - spec.front_lip_depth / 2)
-
-        add(
-            rounded_box_xy(
-                rail_length,
-                wall,
-                spec.corner_wall_height,
-                center=(rail_center_x, y_wall, corner_z),
-                radius=spec.rail_end_radius,
-            )
-        )
-
-        add(
-            rounded_box_xy(
-                rail_length,
-                spec.front_lip_depth,
-                spec.front_lip_height,
-                center=(rail_center_x, y_lip, lip_z),
-                radius=spec.rail_end_radius,
-            )
-        )
-
-    closed_x = -inner_length / 2 - wall / 2
     add(
-        rounded_box_xy(
-            wall,
-            inner_width + 2 * wall,
-            spec.corner_wall_height,
-            center=(closed_x, 0, corner_z),
-            radius=spec.rail_end_radius,
-        )
-    )
-
-    closed_lip_x = -inner_length / 2 + spec.front_lip_depth / 2
-    add(
-        rounded_box_xy(
-            spec.front_lip_depth,
+        open_perimeter_frame_xy(
+            outer_length,
+            outer_width,
+            inner_length,
             inner_width,
-            spec.front_lip_height,
-            center=(closed_lip_x, 0, lip_z),
-            radius=spec.rail_end_radius,
-        )
-    )
-
-    # Screwless snap catches: thin upright tabs at the open end block slide-out.
-    for y_sign in (-1, 1):
-        y_latch = y_sign * (
-            inner_width / 2 - spec.snap_latch_inset_from_side - spec.snap_latch_width / 2
-        )
-        latch_wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
-        latch_lip_x = inner_length / 2 - spec.snap_latch_depth / 2
-
-        add(
-            rounded_box_xy(
-                spec.snap_latch_thickness,
-                spec.snap_latch_width,
-                spec.corner_wall_height,
-                center=(latch_wall_x, y_latch, corner_z),
-                radius=spec.snap_tab_radius,
-            )
-        )
-
-        add(
-            rounded_box_xy(
-                spec.snap_latch_depth,
-                spec.snap_latch_width,
-                spec.front_lip_height,
-                center=(latch_lip_x, y_latch, lip_z),
-                radius=spec.snap_tab_radius,
-            )
-        )
-
-    add_bottom_left_retainer(spec, inner_length, inner_width, corner_z, lip_z)
-
-
-def add_bottom_left_retainer(
-    spec: TabA9GolfCaseSpec,
-    inner_length: float,
-    inner_width: float,
-    corner_z: float,
-    lip_z: float,
-) -> None:
-    retainer_width = spec.bottom_left_retainer_height
-    retainer_y = -inner_width / 2 + retainer_width / 2
-    wall_x = inner_length / 2 + spec.snap_latch_thickness / 2
-    lip_x = inner_length / 2 - spec.snap_latch_depth / 2
-
-    add(
-        rounded_box_xy(
-            spec.snap_latch_thickness,
-            retainer_width,
-            spec.corner_wall_height,
-            center=(wall_x, retainer_y, corner_z),
-            radius=spec.snap_tab_radius,
+            spec.corner_wall_height + spec.retention_base_overlap,
+            center_z=corner_z - spec.retention_base_overlap / 2,
+            outer_radius=spec.outside_corner_radius,
+            bottom_stop_span=wall + spec.bottom_left_stop_width,
+            bottom_right_extension=spec.bottom_right_wrap_extension,
         )
     )
 
     add(
-        rounded_box_xy(
-            spec.snap_latch_depth,
-            retainer_width,
+        open_perimeter_frame_xy(
+            inner_length,
+            inner_width,
+            inner_length - 2 * spec.front_lip_depth,
+            inner_width - 2 * spec.front_lip_depth,
             spec.front_lip_height,
-            center=(lip_x, retainer_y, lip_z),
-            radius=spec.snap_tab_radius,
+            center_z=lip_z,
+            outer_radius=inner_corner_radius,
+            bottom_stop_span=spec.bottom_left_stop_width,
+            bottom_right_extension=spec.bottom_right_wrap_extension,
         )
     )
 
@@ -265,7 +181,7 @@ def cut_device_controls(
         mode=Mode.SUBTRACT,
     )
 
-    speaker_x = inner_length / 2 + spec.snap_latch_thickness / 2
+    speaker_x = inner_length / 2 + wall / 2
     speaker_y = inner_width / 2 - spec.bottom_speaker_cutout_center_from_right
     add(
         rounded_box_xy(
@@ -365,6 +281,78 @@ def rounded_box_xy(
     return rounded.part.translate((x, y, 0))
 
 
+def open_perimeter_frame_xy(
+    outer_length: float,
+    outer_width: float,
+    inner_length: float,
+    inner_width: float,
+    height: float,
+    *,
+    center_z: float,
+    outer_radius: float,
+    bottom_stop_span: float,
+    bottom_right_extension: float,
+):
+    frame_thickness = (outer_length - inner_length) / 2
+    inner_radius = outer_radius - frame_thickness
+
+    with BuildPart() as frame:
+        with BuildSketch(Plane.XY.offset(center_z - height / 2)):
+            RectangleRounded(outer_length, outer_width, outer_radius)
+            RectangleRounded(inner_length, inner_width, inner_radius, mode=Mode.SUBTRACT)
+        extrude(amount=height)
+
+    side_mask_width = outer_radius + 2
+    side_mask_center_y = outer_width / 2 - outer_radius / 2
+    side_mask_length = outer_length + 2
+    mask_height = height + 2
+    bottom_mask_length = outer_length - inner_length + 2
+    bottom_mask_center_x = (outer_length / 2 + inner_length / 2) / 2
+
+    negative_side_mask = Box(
+        side_mask_length,
+        side_mask_width,
+        mask_height,
+        mode=Mode.PRIVATE,
+    ).translate((0, -side_mask_center_y, center_z))
+    positive_side_mask = Box(
+        side_mask_length,
+        side_mask_width,
+        mask_height,
+        mode=Mode.PRIVATE,
+    ).translate((0, side_mask_center_y, center_z))
+    bottom_stop_mask = Box(
+        bottom_mask_length,
+        bottom_stop_span + 2,
+        mask_height,
+        mode=Mode.PRIVATE,
+    ).translate(
+        (
+            bottom_mask_center_x,
+            -outer_width / 2 + bottom_stop_span / 2,
+            center_z,
+        )
+    )
+    bottom_right_span = outer_radius + bottom_right_extension
+    bottom_right_mask = Box(
+        bottom_mask_length,
+        bottom_right_span + 2,
+        mask_height,
+        mode=Mode.PRIVATE,
+    ).translate(
+        (
+            bottom_mask_center_x,
+            outer_width / 2 - bottom_right_span / 2,
+            center_z,
+        )
+    )
+    retention_mask = (
+        negative_side_mask + positive_side_mask + bottom_stop_mask + bottom_right_mask
+    )
+
+    return frame.part & retention_mask
+
+
 def validate_spec(spec: TabA9GolfCaseSpec) -> None:
     if spec.magnet_rows < 1 or spec.magnet_columns < 1:
         raise ValueError("magnet_rows and magnet_columns must be at least 1")
@@ -377,14 +365,24 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
     )
     if spec.corner_wall_height < required_wall_height:
         raise ValueError("corner_wall_height must reach the top of the front lip")
-    if spec.side_rail_open_gap <= spec.snap_latch_thickness:
-        raise ValueError("side_rail_open_gap must leave room for the snap latches to flex")
     if spec.side_button_cutout_length <= 0 or spec.side_button_cutout_depth <= 0:
         raise ValueError("side button cutout dimensions must be positive")
-    if spec.bottom_left_retainer_height <= 0:
-        raise ValueError("bottom-left retainer height must be positive")
-    if spec.bottom_left_retainer_height >= spec.tablet_width / 2:
-        raise ValueError("bottom-left retainer height must stay below the tablet centerline")
+    if spec.bottom_left_stop_width <= 0:
+        raise ValueError("bottom-left stop width must be positive")
+    if spec.bottom_left_stop_width >= spec.tablet_width / 2:
+        raise ValueError("bottom-left stop width must stay below the tablet centerline")
+    if spec.bottom_right_wrap_extension < 0:
+        raise ValueError("bottom-right wrap extension cannot be negative")
+    inner_width = spec.tablet_width + 2 * spec.fit_clearance
+    bottom_left_end = -inner_width / 2 + spec.bottom_left_stop_width
+    bottom_right_start = (
+        inner_width / 2
+        + spec.corner_wall_thickness
+        - spec.outside_corner_radius
+        - spec.bottom_right_wrap_extension
+    )
+    if bottom_left_end >= bottom_right_start:
+        raise ValueError("bottom stops must leave an opening between them")
     if spec.bottom_speaker_cutout_width <= 0 or spec.bottom_speaker_cutout_depth <= 0:
         raise ValueError("bottom speaker cutout dimensions must be positive")
     if spec.bottom_speaker_cutout_center_from_right <= spec.bottom_speaker_cutout_width / 2:
@@ -393,9 +391,13 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
         raise ValueError("side button cutout must stay inside the side rail")
     if (
         spec.side_button_cutout_center_from_top + spec.side_button_cutout_length / 2
-        >= spec.tablet_length - spec.side_rail_open_gap
+        >= spec.tablet_length
     ):
-        raise ValueError("side button cutout must not run into the open-end latch area")
+        raise ValueError("side button cutout must stay inside the side rail")
+    if spec.outside_corner_radius <= spec.corner_wall_thickness + spec.front_lip_depth:
+        raise ValueError("outside corner radius must leave room for the wall and front lip")
+    if not 0 < spec.retention_base_overlap < spec.back_thickness:
+        raise ValueError("retention base overlap must stay within the back plate")
     if spec.text_inlay_depth <= 0:
         raise ValueError("text_inlay_depth must be positive")
     if spec.text_inlay_depth + spec.text_pocket_overcut >= spec.back_thickness:
@@ -404,7 +406,7 @@ def validate_spec(spec: TabA9GolfCaseSpec) -> None:
 
 MODEL = CadModel(
     name="tab_a9_golf_case",
-    description="Galaxy Tab A9 golf-cart case with recessed bar-magnet pockets.",
+    description="Top-loading Galaxy Tab A9 golf-cart case with recessed magnet pockets.",
     spec_type=TabA9GolfCaseSpec,
     build=build,
 )
