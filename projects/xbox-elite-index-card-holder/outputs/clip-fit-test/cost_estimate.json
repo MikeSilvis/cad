@@ -1,0 +1,13 @@
+{
+  "model_name": "xbox_elite_clip_fit_test",
+  "volume_mm3": 1994.7751467015273,
+  "volume_cm3": 1.9947751467015273,
+  "solid_mass_g": 2.5333644363109395,
+  "estimated_material_g": 2.8373681686682524,
+  "estimated_cost_usd": 0.06809683604803805,
+  "settings": {
+    "filament_density_g_cm3": 1.27,
+    "filament_cost_per_kg": 24.0,
+    "material_multiplier": 1.12
+  }
+}

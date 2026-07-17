@@ -1,0 +1,18 @@
+id = "xbox-elite-index-card-holder"
+title = "Xbox Elite Series 2 Index Card Holder"
+description = "Modular 3x5 index-card tray with a twin snap-band mount for the Xbox Elite Wireless Controller Series 2."
+
+[[artifact]]
+slug = "card-holder"
+model = "xbox_elite_index_card_holder"
+formats = ["stl", "step", "png"]
+
+[[artifact]]
+slug = "controller-mount"
+model = "xbox_elite_controller_mount"
+formats = ["stl", "step", "png"]
+
+[[artifact]]
+slug = "clip-fit-test"
+model = "xbox_elite_clip_fit_test"
+formats = ["stl", "step", "png"]

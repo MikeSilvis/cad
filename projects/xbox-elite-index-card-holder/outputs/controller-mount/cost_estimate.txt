@@ -1,0 +1,14 @@
+Model: xbox_elite_controller_mount
+
+Rough material estimate from CAD solid volume.
+Slicer settings such as infill, walls, supports, purge, and brim will change the final cost.
+
+Volume: 10.94 cm^3 (10939 mm^3)
+Solid material mass: 13.9 g
+Estimated print material: 15.6 g
+Estimated material cost: $0.37
+
+Assumptions:
+- Filament density: 1.27 g/cm^3
+- Filament cost: $24.00/kg
+- Material multiplier: 1.12x

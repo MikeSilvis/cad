@@ -1,0 +1,13 @@
+{
+  "model_name": "xbox_elite_index_card_holder",
+  "volume_mm3": 28553.91368319123,
+  "volume_cm3": 28.55391368319123,
+  "solid_mass_g": 36.263470377652865,
+  "estimated_material_g": 40.615086822971215,
+  "estimated_cost_usd": 0.9747620837513091,
+  "settings": {
+    "filament_density_g_cm3": 1.27,
+    "filament_cost_per_kg": 24.0,
+    "material_multiplier": 1.12
+  }
+}

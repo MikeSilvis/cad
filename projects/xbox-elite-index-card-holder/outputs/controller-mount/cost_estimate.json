@@ -1,0 +1,13 @@
+{
+  "model_name": "xbox_elite_controller_mount",
+  "volume_mm3": 10939.39386096455,
+  "volume_cm3": 10.93939386096455,
+  "solid_mass_g": 13.89303020342498,
+  "estimated_material_g": 15.56019382783598,
+  "estimated_cost_usd": 0.37344465186806347,
+  "settings": {
+    "filament_density_g_cm3": 1.27,
+    "filament_cost_per_kg": 24.0,
+    "material_multiplier": 1.12
+  }
+}
