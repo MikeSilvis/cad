@@ -1,0 +1,14 @@
+Model: xbox_elite_clip_fit_test
+
+Rough material estimate from CAD solid volume.
+Slicer settings such as infill, walls, supports, purge, and brim will change the final cost.
+
+Volume: 1.99 cm^3 (1995 mm^3)
+Solid material mass: 2.5 g
+Estimated print material: 2.8 g
+Estimated material cost: $0.07
+
+Assumptions:
+- Filament density: 1.27 g/cm^3
+- Filament cost: $24.00/kg
+- Material multiplier: 1.12x
